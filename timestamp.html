@@ -20,53 +20,45 @@
     font-family: var(--font-sans); min-height: 100vh;
     display: flex; flex-direction: column; align-items: center;
   }
+  .container { width: 100%; max-width: 640px; padding: 32px 20px 60px; }
 
-  .container { width: 100%; max-width: 720px; padding: 40px 20px; }
-
-  .header {
-    text-align: center; margin-bottom: 32px;
-  }
-  .header h1 { font-size: 24px; color: var(--accent); }
-  .header .sub { color: var(--text-dim); font-size: 13px; margin-top: 6px; }
+  .header { text-align: center; margin-bottom: 24px; }
+  .header h1 { font-size: 22px; color: var(--accent); }
+  .header .sub { color: var(--text-dim); font-size: 12px; margin-top: 4px; }
 
   /* Live clock */
   .live-clock {
     background: var(--panel); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 24px; text-align: center; margin-bottom: 24px;
+    border-radius: var(--radius); padding: 24px; text-align: center; margin-bottom: 20px;
   }
-  .live-clock .label { color: var(--text-dim); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+  .live-clock .label { color: var(--text-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
   .live-clock .datetime {
-    font-family: var(--font-mono); font-size: 28px; font-weight: 600;
-    color: var(--text); margin-bottom: 8px;
+    font-family: var(--font-mono); font-size: 26px; font-weight: 600; color: var(--text);
   }
-  .live-clock .ts-row {
-    display: flex; justify-content: center; gap: 32px; margin-top: 8px;
-  }
-  .live-clock .ts-item {
-    display: flex; flex-direction: column; align-items: center;
-  }
+  .live-clock .ts-row { display: flex; justify-content: center; gap: 32px; margin-top: 10px; }
+  .live-clock .ts-item { text-align: center; }
   .live-clock .ts-val {
-    font-family: var(--font-mono); font-size: 15px; color: var(--accent);
+    font-family: var(--font-mono); font-size: 14px; color: var(--accent);
     cursor: pointer; padding: 4px 10px; border-radius: var(--radius-sm);
     transition: background 0.15s;
   }
   .live-clock .ts-val:hover { background: var(--hover); }
-  .live-clock .ts-unit { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .live-clock .ts-unit { font-size: 11px; color: var(--text-dim); }
 
   /* Card */
   .card {
     background: var(--panel); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 20px; margin-bottom: 20px;
+    border-radius: var(--radius); padding: 20px; margin-bottom: 16px;
   }
   .card-title {
-    font-size: 14px; font-weight: 600; color: var(--text-dim);
-    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px;
+    font-size: 12px; color: var(--text-dim); text-transform: uppercase;
+    letter-spacing: 1px; font-weight: 600; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
   }
+  .card-title::before { content: ""; width: 3px; height: 14px; background: var(--accent); border-radius: 2px; }
 
-  .input-row {
-    display: flex; gap: 10px; margin-bottom: 12px;
-  }
-  input {
+  .input-row { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
+  input[type="text"], input.big {
     flex: 1; padding: 10px 14px;
     background: var(--bg); border: 1px solid var(--border);
     border-radius: var(--radius-sm); color: var(--text);
@@ -74,16 +66,33 @@
     transition: border-color 0.15s;
   }
   input:focus { border-color: var(--accent); }
-  input::placeholder { color: var(--text-dim); }
+
+  /* segmented inputs */
+  .segments {
+    display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+  }
+  .seg-input {
+    width: 52px; padding: 8px 0; text-align: center;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); color: var(--text);
+    font-family: var(--font-mono); font-size: 14px; outline: none;
+    transition: border-color 0.15s;
+  }
+  .seg-input:focus { border-color: var(--accent); }
+  .seg-label {
+    font-size: 12px; color: var(--text-dim); padding: 0 2px;
+    user-select: none;
+  }
 
   .btn {
-    padding: 10px 18px; border: 1px solid var(--border);
+    padding: 8px 16px; border: 1px solid var(--border);
     border-radius: var(--radius-sm); background: var(--bg);
     color: var(--text); font-size: 13px; cursor: pointer;
     transition: all 0.15s; font-family: var(--font-sans); white-space: nowrap;
   }
   .btn:hover { background: var(--hover); border-color: var(--accent); }
   .btn.primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .btn.mini { padding: 4px 10px; font-size: 11px; }
 
   .result {
     background: var(--bg); border-radius: var(--radius-sm);
@@ -94,20 +103,17 @@
   .result .empty { color: var(--text-dim); }
 
   .copy-btn {
-    padding: 4px 12px; border: 1px solid var(--border);
-    border-radius: 3px; background: transparent; color: var(--text-dim);
-    font-size: 12px; cursor: pointer; font-family: var(--font-sans);
-    transition: all 0.15s; flex-shrink: 0;
+    padding: 4px 12px; border: 1px solid var(--border); border-radius: 3px;
+    background: transparent; color: var(--text-dim); font-size: 12px; cursor: pointer;
+    font-family: var(--font-sans); flex-shrink: 0;
   }
   .copy-btn:hover { background: var(--hover); color: var(--text); border-color: var(--accent); }
 
-  .hint {
-    font-size: 12px; color: var(--text-dim); margin-top: 8px;
-  }
+  .hint { font-size: 12px; color: var(--text-dim); margin-top: 6px; }
   .hint.error { color: #f38ba8; }
 
   .nav { margin-top: 24px; text-align: center; }
-  .nav a { color: var(--text-dim); font-size: 13px; text-decoration: none; }
+  .nav a { color: var(--text-dim); font-size: 13px; text-decoration: none; margin: 0 10px; }
   .nav a:hover { color: var(--accent); }
 
   ::-webkit-scrollbar { width: 6px; }
@@ -130,7 +136,7 @@
 
   <div class="header">
     <h1>Timestamp</h1>
-    <div class="sub">Unix 时间戳转换工具</div>
+    <div class="sub">Unix 时间戳转换</div>
   </div>
 
   <!-- Live clock -->
@@ -153,7 +159,7 @@
   <div class="card">
     <div class="card-title">时间戳 → 日期时间</div>
     <div class="input-row">
-      <input type="text" id="tsInput" placeholder="输入时间戳，如 1700000000 或 1700000000000">
+      <input type="text" id="tsInput" placeholder="输入时间戳，如 1700000000">
       <button class="btn primary" id="btnConvert">转换</button>
     </div>
     <div class="result">
@@ -163,140 +169,206 @@
     <div class="hint" id="tsHint">自动识别秒/毫秒</div>
   </div>
 
-  <!-- Datetime → Timestamp -->
+  <!-- Datetime → Timestamp (segmented) -->
   <div class="card">
     <div class="card-title">日期时间 → 时间戳</div>
-    <div class="input-row">
-      <input type="text" id="dtInput" placeholder="如 2024-01-01 12:00:00 或 2024/01/01">
-      <button class="btn primary" id="btnConvertDt">转换</button>
+    <div class="segments" id="segments">
+      <input class="seg-input" id="segYear"  placeholder="年" maxlength="4" pattern="\d*" inputmode="numeric">
+      <span class="seg-label">年</span>
+      <input class="seg-input" id="segMonth" placeholder="月" maxlength="2" pattern="\d*" inputmode="numeric">
+      <span class="seg-label">月</span>
+      <input class="seg-input" id="segDay"   placeholder="日" maxlength="2" pattern="\d*" inputmode="numeric">
+      <span class="seg-label">日</span>
+      <input class="seg-input" id="segHour"  placeholder="时" maxlength="2" pattern="\d*" inputmode="numeric">
+      <span class="seg-label">时</span>
+      <input class="seg-input" id="segMin"   placeholder="分" maxlength="2" pattern="\d*" inputmode="numeric">
+      <span class="seg-label">分</span>
+      <input class="seg-input" id="segSec"   placeholder="秒" maxlength="2" pattern="\d*" inputmode="numeric">
+      <span class="seg-label">秒</span>
+      <button class="btn mini" id="btnNow">现在</button>
     </div>
-    <div class="result" style="flex-direction: column; align-items: flex-start; gap: 6px;">
+    <div class="result" style="flex-direction:column;align-items:flex-start;gap:6px;margin-top:10px">
       <div style="display:flex;width:100%;align-items:center;gap:10px">
-        <span style="flex-shrink:0;font-size:12px;color:var(--text-dim);width:50px">秒:</span>
+        <span style="flex-shrink:0;font-size:12px;color:var(--text-dim)">时间:</span>
+        <span class="val" id="dtReadable" style="color:var(--text)">--</span>
+      </div>
+      <div style="display:flex;width:100%;align-items:center;gap:10px">
+        <span style="flex-shrink:0;font-size:12px;color:var(--text-dim);width:32px">秒:</span>
         <span class="val" id="dtSec" style="color:var(--accent)">--</span>
         <button class="copy-btn" id="copyDtSec" style="display:none">复制</button>
       </div>
       <div style="display:flex;width:100%;align-items:center;gap:10px">
-        <span style="flex-shrink:0;font-size:12px;color:var(--text-dim);width:50px">毫秒:</span>
+        <span style="flex-shrink:0;font-size:12px;color:var(--text-dim);width:32px">毫秒:</span>
         <span class="val" id="dtMs" style="color:var(--accent)">--</span>
         <button class="copy-btn" id="copyDtMs" style="display:none">复制</button>
       </div>
     </div>
-    <div class="hint" id="dtHint">支持: 2024-01-01, 2024/01/01 12:00:00, 2024-01-01T12:00:00Z</div>
+    <div class="hint" id="dtHint">选择或输入日期，自动转换</div>
   </div>
 
   <div class="nav">
-    <a href="index.html">← JSON Formatter</a>
+    <a href="index.html">← 首页</a>
+    <a href="json-formatter.html">JSON</a>
+    <a href="cron.html">Cron</a>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script>
 (function(){
-  var tsSecEl   = document.getElementById("ts-sec");
-  var tsMsEl    = document.getElementById("ts-ms");
-  var datetimeEl= document.getElementById("datetime");
-  var toastEl   = document.getElementById("toast");
+  var tsSecEl = document.getElementById("ts-sec");
+  var tsMsEl  = document.getElementById("ts-ms");
+  var dtEl    = document.getElementById("datetime");
+  var toastEl = document.getElementById("toast");
 
-  var tsInput   = document.getElementById("tsInput");
-  var tsResult  = document.getElementById("tsResult");
-  var tsHint    = document.getElementById("tsHint");
-  var copyTs    = document.getElementById("copyTsResult");
+  var tsInput  = document.getElementById("tsInput");
+  var tsResult = document.getElementById("tsResult");
+  var tsHint   = document.getElementById("tsHint");
+  var copyTs   = document.getElementById("copyTsResult");
 
-  var dtInput   = document.getElementById("dtInput");
-  var dtSec     = document.getElementById("dtSec");
-  var dtMs      = document.getElementById("dtMs");
-  var dtHint    = document.getElementById("dtHint");
+  /* seg inputs */
+  var segYear  = document.getElementById("segYear");
+  var segMonth = document.getElementById("segMonth");
+  var segDay   = document.getElementById("segDay");
+  var segHour  = document.getElementById("segHour");
+  var segMin   = document.getElementById("segMin");
+  var segSec   = document.getElementById("segSec");
+  var btnNow   = document.getElementById("btnNow");
+
+  var dtReadable = document.getElementById("dtReadable");
+  var dtSec   = document.getElementById("dtSec");
+  var dtMs    = document.getElementById("dtMs");
+  var dtHint  = document.getElementById("dtHint");
   var copyDtSec = document.getElementById("copyDtSec");
   var copyDtMs  = document.getElementById("copyDtMs");
 
-  /* ── Live clock ── */
   function pad(n){ return n<10?"0"+n:String(n); }
+  var WEEKS = ["日","一","二","三","四","五","六"];
+
+  /* ── Live clock ── */
   function tick() {
     var d = new Date();
-    datetimeEl.textContent =
-      d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+" "+
+    dtEl.textContent = d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+" "+
       pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds());
     tsSecEl.textContent = Math.floor(d.getTime()/1000);
-    tsMsEl.textContent  = d.getTime();
+    tsMsEl.textContent = d.getTime();
   }
   tick(); setInterval(tick, 1000);
 
-  /* click to copy live ts */
   tsSecEl.addEventListener("click",function(){ copy(String(Math.floor(Date.now()/1000))); });
   tsMsEl.addEventListener("click",function(){ copy(String(Date.now())); });
 
   /* ── Timestamp → Datetime ── */
-  function formatDate(d) {
-    return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+" "+
-           pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds())+
-           " (周"+["日","一","二","三","四","五","六"][d.getDay()]+")";
-  }
-
   function tsToDt() {
-    var v = tsInput.value.trim(); if(!v) return;
+    var v = tsInput.value.trim(); if(!v) { resetTs(); return; }
     var n = parseInt(v, 10);
-    if (isNaN(n) || n < 0) {
-      tsResult.textContent = "无效的时间戳"; tsResult.className = "val empty";
-      copyTs.style.display = "none";
-      tsHint.textContent = "输入的不是有效数字"; tsHint.className = "hint error";
-      return;
-    }
-    /* auto-detect seconds vs ms */
+    if (isNaN(n)) { tsResult.textContent = "无效时间戳"; tsResult.className = "val empty"; copyTs.style.display = "none"; return; }
     var sec = n > 1e12 ? n / 1000 : n;
     var d = new Date(sec * 1000);
-    if (isNaN(d.getTime())) {
-      tsResult.textContent = "转换失败"; tsResult.className = "val empty";
-      copyTs.style.display = "none";
-      tsHint.textContent = "时间戳超出有效范围"; tsHint.className = "hint error";
-      return;
-    }
-    var txt = formatDate(d);
+    if (isNaN(d.getTime())) { tsResult.textContent = "转换失败"; tsResult.className = "val empty"; copyTs.style.display = "none"; return; }
+    var txt = d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+" "+
+              pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds())+" (周"+WEEKS[d.getDay()]+")";
     tsResult.textContent = txt; tsResult.className = "val";
     tsResult.setAttribute("data-text", txt);
     copyTs.style.display = "";
-    tsHint.textContent = (n > 1e12 ? "识别为毫秒 (13位)" : "识别为秒 (10位)");
-    tsHint.className = "hint";
+    tsHint.textContent = (n > 1e12 ? "识别为毫秒" : "识别为秒"); tsHint.className = "hint";
   }
+  function resetTs(){ tsResult.textContent = "等待输入…"; tsResult.className = "val empty"; copyTs.style.display = "none"; tsHint.textContent = "自动识别秒/毫秒"; tsHint.className = "hint"; }
 
   document.getElementById("btnConvert").addEventListener("click", tsToDt);
-  tsInput.addEventListener("keydown", function(e){ if(e.key==="Enter") tsToDt(); });
+  tsInput.addEventListener("input", tsToDt);
 
   copyTs.addEventListener("click", function(){ copy(tsResult.getAttribute("data-text")); });
 
-  /* ── Datetime → Timestamp ── */
-  function dtToTs() {
-    var v = dtInput.value.trim(); if(!v) return;
-    /* try ISO format first, fallback to Date.parse which handles most formats */
-    var d = new Date(v);
-    /* convert Chinese date formats: 2024年1月1日 etc */
-    if (isNaN(d.getTime())) {
-      var cn = v.replace(/[年月]/g,"-").replace(/日/g,"").replace(/\s+/g," ").trim();
-      d = new Date(cn);
-    }
-    if (isNaN(d.getTime())) {
-      dtSec.textContent = "日期格式无法解析"; dtSec.style.color = "#f38ba8";
-      dtMs.textContent = "日期格式无法解析"; dtMs.style.color = "#f38ba8";
-      copyDtSec.style.display = "none"; copyDtMs.style.display = "none";
-      dtHint.textContent = "无法解析此日期"; dtHint.className = "hint error";
-      return;
-    }
-    var sec = Math.floor(d.getTime()/1000);
-    var ms  = d.getTime();
-    dtSec.textContent = sec; dtSec.style.color = "";
-    dtSec.setAttribute("data-text", sec);
-    dtMs.textContent  = ms;  dtMs.style.color = "";
-    dtMs.setAttribute("data-text", ms);
-    copyDtSec.style.display = ""; copyDtMs.style.display = "";
-    dtHint.textContent = formatDate(d); dtHint.className = "hint";
+  /* ── Segmented → Timestamp ── */
+  function fillNow() {
+    var d = new Date();
+    segYear.value  = d.getFullYear();
+    segMonth.value = pad(d.getMonth()+1);
+    segDay.value   = pad(d.getDate());
+    segHour.value  = pad(d.getHours());
+    segMin.value   = pad(d.getMinutes());
+    segSec.value   = pad(d.getSeconds());
+    segToTs();
   }
 
-  document.getElementById("btnConvertDt").addEventListener("click", dtToTs);
-  dtInput.addEventListener("keydown", function(e){ if(e.key==="Enter") dtToTs(); });
+  btnNow.addEventListener("click", fillNow);
+
+  function segToTs() {
+    var y = parseInt(segYear.value)  || 0;
+    var m = parseInt(segMonth.value) || 1;
+    var d = parseInt(segDay.value)   || 1;
+    var h = parseInt(segHour.value)  || 0;
+    var mi= parseInt(segMin.value)   || 0;
+    var s = parseInt(segSec.value)   || 0;
+
+    /* check if all empty */
+    if (!segYear.value && !segMonth.value && !segDay.value &&
+        !segHour.value && !segMin.value && !segSec.value) {
+      resetDt(); return;
+    }
+
+    /* validate ranges */
+    if (y < 1970 || y > 3000) { setDtErr("年份范围 1970~3000"); return; }
+    if (m < 1 || m > 12)     { setDtErr("月份范围 1~12"); return; }
+    if (d < 1 || d > 31)     { setDtErr("日期范围 1~31"); return; }
+    if (h < 0 || h > 23)     { setDtErr("小时范围 0~23"); return; }
+    if (mi < 0 || mi > 59)   { setDtErr("分钟范围 0~59"); return; }
+    if (s < 0 || s > 59)     { setDtErr("秒范围 0~59"); return; }
+
+    var date = new Date(y, m-1, d, h, mi, s);
+    if (isNaN(date.getTime()) || date.getMonth() !== m-1) {
+      setDtErr("日期无效（如 2月30日 不存在）"); return;
+    }
+
+    var sec = Math.floor(date.getTime()/1000);
+    var ms  = date.getTime();
+    var readable = y+"-"+pad(m)+"-"+pad(d)+" "+pad(h)+":"+pad(mi)+":"+pad(s)+" (周"+WEEKS[date.getDay()]+")";
+
+    dtReadable.textContent = readable;
+    dtReadable.setAttribute("data-text", readable);
+    dtSec.textContent = sec; dtSec.style.color = "";
+    dtSec.setAttribute("data-text", sec);
+    dtMs.textContent = ms; dtMs.style.color = "";
+    dtMs.setAttribute("data-text", ms);
+    copyDtSec.style.display = ""; copyDtMs.style.display = "";
+    dtHint.textContent = ""; dtHint.className = "hint";
+  }
+
+  function setDtErr(msg) {
+    dtSec.textContent = msg; dtSec.style.color = "#f38ba8";
+    dtMs.textContent = ""; dtMs.style.color = "";
+    copyDtSec.style.display = "none"; copyDtMs.style.display = "none";
+    dtReadable.textContent = msh;
+    dtHint.textContent = msg; dtHint.className = "hint error";
+  }
+
+  function resetDt() {
+    dtReadable.textContent = "--";
+    dtSec.textContent = "--"; dtSec.style.color = "";
+    dtMs.textContent = "--"; dtMs.style.color = "";
+    copyDtSec.style.display = "none"; copyDtMs.style.display = "none";
+    dtHint.textContent = "选择或输入日期，自动转换"; dtHint.className = "hint";
+  }
+
+  /* auto-convert on input */
+  [segYear,segMonth,segDay,segHour,segMin,segSec].forEach(function(el){
+    el.addEventListener("input", segToTs);
+    /* allow tab between fields */
+    el.addEventListener("keydown", function(e){
+      if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+        e.preventDefault();
+        var v = parseInt(el.value) || 0;
+        el.value = pad(e.key === "ArrowUp" ? v+1 : v-1);
+        segToTs();
+      }
+    });
+  });
 
   copyDtSec.addEventListener("click", function(){ copy(dtSec.getAttribute("data-text")); });
-  copyDtMs.addEventListener("click", function(){ copy(dtMs.getAttribute("data-text")); });
+  copyDtMs.addEventListener("click",  function(){ copy(dtMs.getAttribute("data-text")); });
+  dtReadable.addEventListener("click", function(){ copy(dtReadable.getAttribute("data-text")); });
+  dtReadable.style.cursor = "pointer";
 
   /* ── Copy ── */
   function copy(text) {
@@ -305,10 +377,12 @@
   var tmr;
   function showToast(msg) {
     clearTimeout(tmr);
-    toastEl.textContent = msg;
-    toastEl.classList.add("show");
+    toastEl.textContent = msg; toastEl.classList.add("show");
     tmr = setTimeout(function(){ toastEl.classList.remove("show"); }, 1500);
   }
+
+  /* init with now */
+  fillNow();
 })();
 </script>
 </body>
