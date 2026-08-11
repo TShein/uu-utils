@@ -221,26 +221,50 @@
   }
 
   function humanSentence(parts) {
-    var s = [];
-    if (parts[0] === "*") s.push("每分钟");
-    else if (/^\*\/\d+$/.test(parts[0])) s.push("每"+parts[0].split("/")[1]+"分钟");
-    else s.push("第"+parts[0]+"分");
-    if (parts[1] === "*") s.push("每小时");
-    else if (/^\*\/\d+$/.test(parts[1])) s.push("每"+parts[1].split("/")[1]+"小时");
-    else s.push(parts[1]+"点");
-    if (parts[2] !== "*") {
-      if (parts[2] === "L") s.push("最后一天");
-      else if (/^\*\/\d+$/.test(parts[2])) s.push("每"+parts[2].split("/")[1]+"天");
-      else s.push(parts[2]+"号");
+    var m = parts[0], h = parts[1], d = parts[2], mo = parts[3], w = parts[4];
+
+    /* days */
+    var dp = [];
+    if (mo !== "*") dp.push(mo + "月");
+    if (d !== "*") {
+      if (d === "L") dp.push("最后一天");
+      else if (/^\*\/\d+$/.test(d)) dp.push("每" + d.split("/")[1] + "天");
+      else dp.push(d + "号");
     }
-    if (parts[3] !== "*") s.push(parts[3]+"月");
-    if (parts[4] !== "*") {
-      if (parts[4] === "1-5") s.push("工作日");
-      else if (parts[4] === "6,0" || parts[4] === "0,6") s.push("周末");
-      else if (/^\d+$/.test(parts[4])) s.push("周"+WEEKS[parseInt(parts[4])]);
-      else s.push(parts[4]);
+    if (w !== "*") {
+      if (w === "1-5") dp.push("工作日");
+      else if (w === "6,0" || w === "0,6") dp.push("周末");
+      else if (/^\d+-\d+$/.test(w)) { var wr = w.split("-"); dp.push("周" + WEEKS[parseInt(wr[0])] + "至周" + WEEKS[parseInt(wr[1])]); }
+      else if (/^\d+$/.test(w)) dp.push("周" + WEEKS[parseInt(w)]);
+      else dp.push(w);
     }
-    return s.join("，");
+    var dayStr = dp.length ? dp.join("") : "每天";
+
+    /* combine hour+minute when both are specific values */
+    var timeStr = "";
+    if (/^\d+$/.test(h) && /^\d+$/.test(m)) {
+      timeStr = pad(parseInt(h)) + ":" + pad(parseInt(m));
+    } else if (h === "*" && m === "*") {
+      timeStr = "每分钟";
+    } else if (h === "*") {
+      /* only minute constrained */
+      if (/^\*\/\d+$/.test(m)) timeStr = "每" + m.split("/")[1] + "分钟";
+      else if (m === "0") timeStr = "每小时整点";
+      else timeStr = "每小时第" + m + "分";
+    } else if (m === "*" || m === "0") {
+      /* only hour constrained (or minute=0) */
+      if (/^\*\/\d+$/.test(h)) timeStr = "每" + h.split("/")[1] + "小时" + (m === "0" ? "整点" : "");
+      else timeStr = h + ":00";
+    } else {
+      /* both constrained, hour not specific or minute not specific */
+      var hStr = /^\*\/\d+$/.test(h) ? "每" + h.split("/")[1] + "小时" : h + "点";
+      var mStr = /^\*\/\d+$/.test(m) ? "每" + m.split("/")[1] + "分钟" : "第" + m + "分";
+      timeStr = hStr + "内" + mStr;
+    }
+
+    if (timeStr === "每分钟" && dayStr === "每天") return "每分钟执行";
+    if (dayStr === "每天" && /^每/.test(timeStr)) return timeStr;
+    return dayStr + " " + timeStr;
   }
 
   function buildSelector() {
