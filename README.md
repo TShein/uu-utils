@@ -16,4 +16,4 @@
 
 ## 在线访问
 
-`https://tshein.github.io/utils/`
+`https://tshein.github.io/uu-utils/`
