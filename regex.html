@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Regex Tester</title>
+<style>
+  :root {
+    --bg:#0f0f1a;--surface:#161625;--border:#2a2a40;--text:#e4e4ed;--text-dim:#787890;
+    --accent:#7c8bff;--accent-soft:rgba(124,139,255,0.12);--green:#5ecb8c;--amber:#f0a060;--rose:#f07090;
+    --radius:10px;--radius-sm:6px;
+    --font-mono:"SF Mono","Fira Code","JetBrains Mono",Consolas,monospace;
+    --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  }
+  [data-theme="light"] {
+    --bg:#fafafe;--surface:#ffffff;--border:#e4e4ec;--text:#1a1a28;--text-dim:#8c8ca0;
+    --accent:#5b6cf0;--accent-soft:rgba(91,108,240,0.08);--green:#3b9a60;--amber:#d68040;--rose:#d05068;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-sans);min-height:100vh;display:flex}
+  /* Sidebar */
+  .sidebar{width:200px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:24px 0;min-height:100vh}
+  .sidebar-brand{padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:8px}
+  .sidebar-brand .name{font-size:20px;font-weight:700;color:var(--accent)}
+  .sidebar-brand .sub{font-size:11px;color:var(--text-dim);margin-top:2px}
+  .sidebar-nav{flex:1;padding:8px 0}
+  .sidebar-nav a{display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--text-dim);text-decoration:none;font-size:14px;transition:all .12s;border-left:3px solid transparent}
+  .sidebar-nav a:hover{color:var(--text);background:rgba(124,139,255,.06)}
+  .sidebar-nav a.active{color:var(--accent);border-left-color:var(--accent);background:var(--accent-soft)}
+  .sidebar-nav a .icon{font-size:18px;width:24px;text-align:center;flex-shrink:0}
+  .sidebar-bottom{padding:16px 20px;border-top:1px solid var(--border)}
+  .sidebar-bottom button{width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);cursor:pointer;font-size:13px;font-family:var(--font-sans);transition:all .12s}
+  .sidebar-bottom button:hover{border-color:var(--accent)}
+  /* Content */
+  .main-content{flex:1;overflow-y:auto;min-width:0}
+  .container{max-width:900px;padding:28px 36px 40px}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:14px}
+  .card-title{font-size:12px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .card-title::before{content:"";width:3px;height:14px;background:var(--accent);border-radius:2px}
+
+  input,textarea{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-mono);font-size:14px;outline:none;transition:border-color .15s;padding:10px 14px}
+  input:focus,textarea:focus{border-color:var(--accent)}
+  textarea{width:100%;resize:vertical;min-height:80px;line-height:1.6}
+
+  .input-row{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+  .input-row input{flex:1;font-size:16px;letter-spacing:.5px}
+  .flag-btn{padding:4px 10px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text-dim);cursor:pointer;font-family:var(--font-mono);font-size:13px;transition:all .12s}
+  .flag-btn:hover{border-color:var(--accent)}
+  .flag-btn.on{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+  .btn{padding:8px 16px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);font-size:13px;cursor:pointer;transition:all .15s;font-family:var(--font-sans);white-space:nowrap}
+  .btn:hover{border-color:var(--accent)}
+  .btn.primary{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+
+  /* Meaning */
+  .meaning{margin-top:12px}
+  .meaning .chunk{display:inline-flex;flex-direction:column;margin:3px 4px;text-align:center}
+  .meaning .chunk .re{font-family:var(--font-mono);font-size:14px;color:var(--accent);background:var(--accent-soft);padding:2px 8px;border-radius:4px}
+  .meaning .chunk .desc{font-size:10px;color:var(--text-dim);margin-top:2px}
+  .error-msg{color:var(--rose);font-size:13px;display:none}
+  .error-msg.show{display:block}
+
+  /* Matches */
+  .match-area{margin-top:10px}
+  .match-display{background:var(--bg);border-radius:var(--radius-sm);padding:14px;font-family:var(--font-mono);font-size:14px;line-height:1.7;white-space:pre-wrap;word-break:break-all;min-height:50px;max-height:300px;overflow-y:auto}
+  .match-display mark{background:rgba(94,203,140,.35);color:var(--text);border-radius:2px;padding:0 2px}
+  .match-display mark.alt{background:rgba(240,160,96,.35)}
+  .match-info{display:flex;gap:16px;margin-top:8px;font-size:12px;color:var(--text-dim)}
+
+  /* Presets */
+  .preset-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+  .preset-item{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;cursor:pointer;transition:all .12s}
+  .preset-item:hover{border-color:var(--accent);background:var(--accent-soft)}
+  .preset-item .p-name{font-size:14px;font-weight:600;margin-bottom:4px}
+  .preset-item .p-re{font-family:var(--font-mono);font-size:11px;color:var(--accent);word-break:break-all;margin-bottom:4px}
+  .preset-item .p-desc{font-size:11px;color:var(--text-dim)}
+  .preset-item .p-example{font-family:var(--font-mono);font-size:10px;color:var(--green);margin-top:4px}
+
+  /* Generator */
+  .gen-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+  .gen-row select{padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;font-family:var(--font-sans);outline:none}
+  .gen-row select:focus{border-color:var(--accent)}
+
+  ::-webkit-scrollbar{width:6px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:#585b70;border-radius:3px}
+
+  .toast{position:fixed;top:20px;right:20px;background:var(--green);color:var(--bg);padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;opacity:0;transform:translateY(-10px);transition:all .25s;pointer-events:none;z-index:100}
+  .toast.show{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand"><div class="name">Regex</div><div class="sub">正则测试 & 生成</div></div>
+  <nav class="sidebar-nav">
+    <a href="index.html"><span class="icon">🏠</span> 首页</a>
+    <a href="json-formatter.html"><span class="icon">{ }</span> JSON</a>
+    <a href="timestamp.html"><span class="icon">⏱</span> Timestamp</a>
+    <a href="cron.html"><span class="icon">🕐</span> Cron</a>
+    <a href="password.html"><span class="icon">🔑</span> Password</a>
+    <a href="regex.html" class="active"><span class="icon">⚡</span> Regex</a>
+  </nav>
+  <div class="sidebar-bottom"><button onclick="toggleTheme()" id="themeBtn">🌙 深色模式</button></div>
+</aside>
+
+<div class="main-content"><div class="container">
+
+  <!-- Input -->
+  <div class="card">
+    <div class="card-title">正则表达式</div>
+    <div class="input-row">
+      <input type="text" id="reInput" placeholder="/正则表达式/" id="reInput" spellcheck="false">
+      <span id="flagG" class="flag-btn on" data-f="g">g</span>
+      <span id="flagI" class="flag-btn" data-f="i">i</span>
+      <span id="flagM" class="flag-btn" data-f="m">m</span>
+      <span id="flagS" class="flag-btn" data-f="s">s</span>
+      <span id="flagU" class="flag-btn" data-f="u">u</span>
+      <button class="btn primary" id="btnTest">测试</button>
+    </div>
+    <div class="error-msg" id="errMsg"></div>
+    <div class="meaning" id="meaningBox"></div>
+  </div>
+
+  <!-- Test area -->
+  <div class="card">
+    <div class="card-title">测试文本</div>
+    <textarea id="testText" placeholder="在此输入要匹配的文本...&#10;每行一条，用于测试正则匹配效果"></textarea>
+    <div class="match-area">
+      <div class="match-display" id="matchDisplay"><span style="color:var(--text-dim)">输入正则 + 测试文本后自动高亮匹配</span></div>
+      <div class="match-info" id="matchInfo"></div>
+    </div>
+  </div>
+
+  <!-- Presets -->
+  <div class="card">
+    <div class="card-title">常用正则预设（点击选用）</div>
+    <div class="preset-grid" id="presetGrid"></div>
+  </div>
+
+  <!-- Range Generator -->
+  <div class="card">
+    <div class="card-title">正则生成器</div>
+    <div class="gen-row">
+      <select id="genType"><option value="">-- 选择规则类型 --</option></select>
+      <button class="btn" id="btnGen">生成正则</button>
+    </div>
+    <div class="gen-row" id="genParams" style="display:none"></div>
+    <div style="margin-top:10px;font-family:var(--font-mono);font-size:15px;color:var(--accent)" id="genResult"></div>
+    <div style="font-size:12px;color:var(--text-dim);margin-top:4px" id="genDesc"></div>
+  </div>
+
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  var reInput=document.getElementById("reInput"),testText=document.getElementById("testText");
+  var errMsg=document.getElementById("errMsg"),meaningBox=document.getElementById("meaningBox");
+  var matchDisplay=document.getElementById("matchDisplay"),matchInfo=document.getElementById("matchInfo");
+  var genType=document.getElementById("genType"),genParams=document.getElementById("genParams");
+  var genResult=document.getElementById("genResult"),genDesc=document.getElementById("genDesc");
+  var toastEl=document.getElementById("toast");
+
+  var flags=document.querySelectorAll(".flag-btn");
+  var activeFlags={g:true,i:false,m:false,s:false,u:false};
+
+  /* ── Flags ── */
+  flags.forEach(function(f){
+    f.addEventListener("click",function(){
+      this.classList.toggle("on");
+      activeFlags[this.getAttribute("data-f")]=this.classList.contains("on");
+    });
+  });
+
+  function getFlags(){
+    var s="";for(var k in activeFlags) if(activeFlags[k]) s+=k;return s;
+  }
+
+  /* ── Meaning explainer ── */
+  var patterns=[
+    {re:/^\^/,desc:"行首开始"},{re:/^\$/,desc:"行尾结束"},{re:/^\\b/,desc:"单词边界"},
+    {re:/^\\d/,desc:"数字 [0-9]"},{re:/^\\D/,desc:"非数字"},{re:/^\\w/,desc:"单词字符 [a-zA-Z0-9_]"},{re:/^\\W/,desc:"非单词字符"},
+    {re:/^\\s/,desc:"空白符"},{re:/^\\S/,desc:"非空白符"},{re:/^\\n/,desc:"换行符"},
+    {re:/^\./,desc:"任意字符"},{re:/^\\\//,desc:"字面斜杠 /"},
+    {re:/^\\u[\dA-Fa-f]{4}/,desc:"Unicode字符"},
+    {re:/^\d+\s*-\s*\d+/,desc:"数字范围"},
+    {re:/^[0O][rRr]/,desc:"或"},
+  ];
+
+  function explain(reStr){
+    if(!reStr){meaningBox.innerHTML="";return}
+
+    /* Check for /.../flags syntax */
+    var flagsStr="";
+    var m=reStr.match(/^\/(.+)\/([gimsuy]*)$/);
+    if(m){reStr=m[1];flagsStr=m[2];
+      for(var i=0;i<flagsStr.length;i++){
+        if(flagsStr[i]==="g")document.getElementById("flagG").classList.add("on");
+        if(flagsStr[i]==="i")document.getElementById("flagI").classList.add("on");
+        if(flagsStr[i]==="m")document.getElementById("flagM").classList.add("on");
+        if(flagsStr[i]==="s")document.getElementById("flagS").classList.add("on");
+        if(flagsStr[i]==="u")document.getElementById("flagU").classList.add("on");
+      }
+    }
+
+    var chunks=[],pos=0;
+    function addChunk(r,d){chunks.push({re:r,desc:d});}
+
+    while(pos<reStr.length){
+      var rest=reStr.slice(pos),matched=false;
+
+      if(rest[0]==="^"){addChunk("^","行首");pos++;matched=true}
+      else if(rest[0]==="$"){addChunk("$","行尾");pos++;matched=true}
+      else if(rest[0]==="."){addChunk(".","任意字符");pos++;matched=true}
+      else if(rest[0]==="|"){addChunk("|","或");pos++;matched=true}
+      else if(rest.substr(0,2)==="\\d"){addChunk("\\d","数字");pos+=2;matched=true}
+      else if(rest.substr(0,2)==="\\D"){addChunk("\\D","非数字");pos+=2;matched=true}
+      else if(rest.substr(0,2)==="\\w"){addChunk("\\w","单词字符");pos+=2;matched=true}
+      else if(rest.substr(0,2)==="\\W"){addChunk("\\W","非单词字符");pos+=2;matched=true}
+      else if(rest.substr(0,2)==="\\s"){addChunk("\\s","空白符");pos+=2;matched=true}
+      else if(rest.substr(0,2)==="\\S"){addChunk("\\S","非空白符");pos+=2;matched=true}
+      else if(rest.substr(0,2)==="\\b"){addChunk("\\b","单词边界");pos+=2;matched=true}
+      else if(rest.substr(0,2)==="\\B"){addChunk("\\B","非单词边界");pos+=2;matched=true}
+      else if(rest[0]==="("){
+        var depth=1,i=pos+1;
+        while(i<reStr.length&&depth>0){if(reStr[i]==="(")depth++;if(reStr[i]===")")depth--;i++}
+        var sub=reStr.slice(pos,i);
+        var label="分组";
+        if(reStr[pos+1]==="?")label="特殊分组";
+        if(reStr.slice(pos,pos+3)==="(?:")label="非捕获组";
+        if(reStr.slice(pos,pos+4)==="(?=)")label="正向预查";
+        if(reStr.slice(pos,pos+4)==="(?!")label="负向预查";
+        addChunk(sub,label);pos=i;matched=true;
+      }
+      else if(rest[0]==="["){
+        var i=pos+1;
+        while(i<reStr.length&&reStr[i]!=="]"){if(reStr[i]==="\\")i++;i++}
+        addChunk(reStr.slice(pos,i+1),"字符集");pos=i+1;matched=true;
+      }
+      else if(rest[0]==="\\"&&rest[1]){
+        addChunk(rest[0]+rest[1],"转义字符");pos+=2;matched=true;
+      }
+      else if("+*?{".indexOf(rest[0])!==-1){
+        if(rest[0]==="*"){addChunk("*","0或多次");pos++}
+        else if(rest[0]==="+"){addChunk("+","1或多次");pos++}
+        else if(rest[0]==="?"){addChunk("?","0或1次");pos++}
+        else if(rest[0]==="{"){
+          var j=pos+1;
+          while(j<reStr.length&&reStr[j]!=="}")j++;
+          var q=reStr.slice(pos,j+1);
+          var qv=q.slice(1,-1);
+          if(qv.indexOf(",")===-1) addChunk(q,qv+"次");
+          else if(qv===",") addChunk(q,"无限次");
+          else if(qv.endsWith(",")) addChunk(q,"至少"+qv.slice(0,-1)+"次");
+          else addChunk(q,qv.replace(",","~")+"次");
+          pos=j+1;
+        }
+        matched=true;
+      }
+
+      if(!matched){
+        var lit="";
+        while(pos<reStr.length&&"^$.*+?{}[]()|\\".indexOf(reStr[pos])===-1){lit+=reStr[pos];pos++}
+        if(!lit&&pos<reStr.length){lit=reStr[pos];pos++}
+        if(lit) addChunk(lit,"字面匹配");
+      }
+    }
+
+    var html="";
+    chunks.forEach(function(c){html+='<span class="chunk"><span class="re">'+esc(c.re)+'</span><span class="desc">'+esc(c.desc)+'</span></span>';});
+    meaningBox.innerHTML=html;
+  }
+
+  /* ── Test ── */
+  function doTest(){
+    errMsg.classList.remove("show");
+    var raw=reInput.value.trim();
+    if(!raw){meaningBox.innerHTML="";matchDisplay.innerHTML='<span style="color:var(--text-dim)">输入正则开始测试</span>';matchInfo.textContent="";return}
+
+    var reStr=raw,flagsStr=getFlags();
+    var m=raw.match(/^\/(.+)\/([gimsuy]*)$/);
+    if(m){reStr=m[1];flagsStr=m[2]}
+
+    /* Validate */
+    try{
+      var re=new RegExp(reStr,flagsStr);
+    }catch(e){
+      errMsg.textContent="正则语法错误: "+e.message;errMsg.classList.add("show");
+      meaningBox.innerHTML="";matchDisplay.innerHTML="";matchInfo.textContent="";
+      return;
+    }
+
+    explain(reStr);
+
+    var text=testText.value;
+    if(!text){matchDisplay.innerHTML='<span style="color:var(--text-dim)">在上方输入测试文本</span>';matchInfo.textContent="";return}
+
+    /* Match & highlight */
+    var matches=[],match;
+    while((match=re.exec(text))!==null){
+      matches.push({idx:match.index,len:match[0].length,txt:match[0]});
+      if(!re.global) break;
+      if(match[0].length===0){re.lastIndex++;if(re.lastIndex>text.length)break}
+    }
+    var highlight=text;
+    for(var i=matches.length-1;i>=0;i--){
+      var cls=i%2===0?"":" alt";
+      highlight=highlight.slice(0,matches[i].idx)+'<mark'+cls+'>'+esc(matches[i].txt)+'</mark>'+highlight.slice(matches[i].idx+matches[i].len);
+    }
+    if(!highlight.trim())highlight='<span style="color:var(--text-dim)">无匹配</span>';
+    matchDisplay.innerHTML=highlight;
+    matchInfo.innerHTML='<span>'+matches.length+' 处匹配</span>'+matches.map(function(m,i){return'<span>#'+(i+1)+': '+esc(m.txt)+'</span>';}).join("");
+  }
+
+  document.getElementById("btnTest").addEventListener("click",doTest);
+  reInput.addEventListener("input",function(){clearTimeout(reInput._t);reInput._t=setTimeout(doTest,400)});
+  testText.addEventListener("input",function(){clearTimeout(testText._t);testText._t=setTimeout(doTest,300)});
+
+  /* ── Presets ── */
+  var PRESETS=[
+    {name:"邮箱",re:"^[\\w.-]+@[\\w.-]+\\.\\w{2,}$",desc:"标准邮箱格式",ex:"user@example.com"},
+    {name:"手机号(中国)",re:"^1[3-9]\\d{9}$",desc:"11位手机号码",ex:"13800138000"},
+    {name:"身份证(中国)",re:"^[1-9]\\d{5}(19|20)\\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\\d|3[01])\\d{3}[\\dXx]$",desc:"18位身份证",ex:"110101199001011234"},
+    {name:"URL",re:"^https?://[\\w.-]+(:\\d+)?(/[\\w./-]*)?$",desc:"HTTP/HTTPS地址",ex:"https://example.com/path"},
+    {name:"IP地址",re:"^((25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)\\.){3}(25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)$",desc:"IPv4地址",ex:"192.168.1.1"},
+    {name:"日期 YYYY-MM-DD",re:"^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$",desc:"日期格式",ex:"2024-01-15"},
+    {name:"16进制颜色",re:"^#([a-fA-F\\d]{3}|[a-fA-F\\d]{6})$",desc:"Hex颜色值",ex:"#3a5c80"},
+    {name:"中文",re:"[\\u4e00-\\u9fa5]",desc:"匹配中文字符",ex:"你好世界"},
+    {name:"用户名(字母开头4-16位)",re:"^[a-zA-Z]\\w{3,15}$",desc:"字母开头+字母数字下划线",ex:"user_name123"},
+    {name:"密码(8-20,含字母数字)",re:"^(?=.*[a-zA-Z])(?=.*\\d).{8,20}$",desc:"至少一个字母+一个数字",ex:"pass1234"},
+    {name:"正整数",re:"^[1-9]\\d*$",desc:"大于0的整数",ex:"123"},
+    {name:"金额(两位小数)",re:"^\\d+(\\.\\d{1,2})?$",desc:"金额最多两位小数",ex:"199.99"},
+    {name:"QQ号",re:"^[1-9]\\d{4,10}$",desc:"5-11位数字",ex:"123456789"},
+    {name:"邮政编码(中国)",re:"^[1-9]\\d{5}$",desc:"6位数字",ex:"100000"},
+  ];
+
+  var pGrid=document.getElementById("presetGrid");
+  PRESETS.forEach(function(p){
+    var div=document.createElement("div");div.className="preset-item";
+    div.innerHTML='<div class="p-name">'+p.name+'</div><div class="p-re">'+esc(p.re)+'</div><div class="p-desc">'+p.desc+'</div><div class="p-example">例: '+p.ex+'</div>';
+    div.addEventListener("click",function(){reInput.value=p.re;doTest();});
+    pGrid.appendChild(div);
+  });
+
+  /* ── Generator ── */
+  var GEN_RULES=[
+    {name:"6-20位，含字母和数字",label:"密码(字母+数字)",re:"^(?=.*[a-zA-Z])(?=.*\\d).{6,20}$",desc:"至少一个字母和一个数字，长度6-20"},
+    {name:"8-30位，含大小写+数字+符号",label:"强密码",re:"^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{}|;:,.<>?/~]).{8,30}$",desc:"大小写字母+数字+特殊符号，长度8-30"},
+    {name:"字母开头，4-16位，仅字母数字下划线",label:"用户名",re:"^[a-zA-Z]\\w{3,15}$",desc:"字母开头，后续可为字母数字下划线，总长4-16"},
+    {name:"11位数字，1开头",label:"手机号简版",re:"^1\\d{10}$",desc:"1开头11位数字"},
+    {name:"任意正整数",label:"正整数",re:"^[1-9]\\d*$",desc:"大于0的整数"},
+    {name:"正负数+小数",label:"数值(含正负)",re:"^-?\\d+(\\.\\d+)?$",desc:"可选负号，可选小数部分"},
+    {name:"1-65535端口号",label:"端口号",re:"^([1-9]\\d{0,3}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])$",desc:"1~65535"},
+    {name:"连续数字(自定义长度)",label:"数字范围",re:"^\\d{自定义}$",desc:"纯数字，自定义长度"},
+    {name:"包含指定字符串",label:"包含关键词",re:"自定义关键词",desc:"匹配包含某关键词的文本"},
+  ];
+
+  GEN_RULES.forEach(function(r,i){
+    var opt=document.createElement("option");opt.value=i;opt.textContent=r.label;
+    genType.appendChild(opt);
+  });
+
+  genType.addEventListener("change",function(){
+    var idx=parseInt(this.value);
+    if(isNaN(idx)){genParams.style.display="none";return}
+    var rule=GEN_RULES[idx];
+    genParams.style.display="";
+    if(rule.name.indexOf("自定义长度")!==-1){
+      genParams.innerHTML='<span style="font-size:13px;color:var(--text-dim)">长度:</span><input id="genLen" value="6" style="width:60px;padding:6px 8px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:var(--font-mono);font-size:13px;outline:none;text-align:center">';
+    }else if(rule.name.indexOf("包含指定字符串")!==-1){
+      genParams.innerHTML='<span style="font-size:13px;color:var(--text-dim)">关键词:</span><input id="genKw" value="" style="width:160px;padding:6px 8px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:var(--font-mono);font-size:13px;outline:none" placeholder="输入关键词">';
+    }else{
+      genParams.innerHTML='<span style="font-size:12px;color:var(--text-dim)">'+rule.desc+'</span>';
+    }
+  });
+
+  document.getElementById("btnGen").addEventListener("click",function(){
+    var idx=parseInt(genType.value);
+    if(isNaN(idx))return;
+    var rule=GEN_RULES[idx],re=rule.re;
+    if(rule.name.indexOf("自定义长度")!==-1){
+      var len=(document.getElementById("genLen")||{}).value||"6";
+      re=re.replace("自定义",len);
+    }
+    if(rule.name.indexOf("包含指定字符串")!==-1){
+      var kw=(document.getElementById("genKw")||{}).value||"";
+      re=kw?escRegex(kw):"关键词";
+    }
+    genResult.textContent=re;
+    genDesc.textContent=rule.desc;
+    reInput.value=re;doTest();
+    toast("已应用");
+  });
+
+  /* ── Helpers ── */
+  function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+  function escRegex(s){return s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");}
+
+  /* ── Theme ── */
+  var saved=localStorage.getItem("theme")||"dark";
+  document.documentElement.setAttribute("data-theme",saved);
+  document.getElementById("themeBtn").textContent=saved==="light"?"☀️ 浅色模式":"🌙 深色模式";
+  window.toggleTheme=function(){
+    var n=document.documentElement.getAttribute("data-theme")==="light"?"dark":"light";
+    document.documentElement.setAttribute("data-theme",n);
+    localStorage.setItem("theme",n);
+    document.getElementById("themeBtn").textContent=n==="light"?"☀️ 浅色模式":"🌙 深色模式";
+  };
+
+  var tmr;
+  function toast(msg){clearTimeout(tmr);toastEl.textContent=msg;toastEl.classList.add("show");tmr=setTimeout(function(){toastEl.classList.remove("show")},1500);}
+})();
+</script>
+</body>
+</html>
