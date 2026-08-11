@@ -13,28 +13,50 @@
     --font-mono: "SF Mono","Fira Code","Cascadia Code","JetBrains Mono",Consolas,monospace;
     --font-sans: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
   }
-
   [data-theme="light"] {
     --bg: #f4f4f5; --panel: #ffffff; --border: #d4d4d8;
     --text: #18181b; --text-dim: #71717a;
     --accent: #2563eb; --success: #16a34a; --warn: #ea580c; --error: #dc2626;
     --hover: #e4e4e7; --scrollbar-thumb: #a1a1aa;
   }
-
   *{margin:0;padding:0;box-sizing:border-box}
   body {
     background: var(--bg); color: var(--text);
-    font-family: var(--font-sans); min-height: 100vh;
-    display: flex; flex-direction: column; align-items: center;
+    font-family: var(--font-sans); min-height: 100vh; display: flex;
   }
-  .container { width: 100%; padding: 24px 32px 40px; }
 
-  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
-  .header .left h1 { font-size: 22px; color: var(--accent); }
-  .header .left .sub { color: var(--text-dim); font-size: 12px; margin-top: 2px; }
-  .header .right { display: flex; align-items: center; gap: 14px; }
-  .header .right a { color: var(--text-dim); font-size: 13px; text-decoration: none; }
-  .header .right a:hover { color: var(--accent); }
+  /* Sidebar */
+  .sidebar {
+    width: 200px; flex-shrink: 0; background: var(--panel);
+    border-right: 1px solid var(--border); display: flex;
+    flex-direction: column; padding: 24px 0; min-height: 100vh;
+  }
+  .sidebar-brand {
+    padding: 0 20px 20px; border-bottom: 1px solid var(--border); margin-bottom: 8px;
+  }
+  .sidebar-brand .name { font-size: 20px; font-weight: 700; color: var(--accent); }
+  .sidebar-brand .sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .sidebar-nav { flex: 1; padding: 8px 0; }
+  .sidebar-nav a {
+    display: flex; align-items: center; gap: 10px; padding: 10px 20px;
+    color: var(--text-dim); text-decoration: none; font-size: 14px;
+    transition: all 0.12s; border-left: 3px solid transparent;
+  }
+  .sidebar-nav a:hover { color: var(--text); background: var(--hover); }
+  .sidebar-nav a.active { color: var(--accent); border-left-color: var(--accent); background: rgba(137,180,250,0.08); }
+  .sidebar-nav a .icon { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; }
+  .sidebar-bottom { padding: 16px 20px; border-top: 1px solid var(--border); }
+  .sidebar-bottom button {
+    width: 100%; padding: 8px; border: 1px solid var(--border);
+    border-radius: var(--radius-sm); background: var(--bg);
+    color: var(--text); cursor: pointer; font-size: 13px;
+    font-family: var(--font-sans); transition: all 0.12s;
+  }
+  .sidebar-bottom button:hover { border-color: var(--accent); }
+
+  /* Content */
+  .main-content { flex: 1; overflow-y: auto; min-width: 0; }
+  .container { padding: 28px 36px 40px; }
 
   /* card */
   .card {
@@ -48,120 +70,86 @@
   }
   .card-title::before { content: ""; width: 3px; height: 14px; background: var(--accent); border-radius: 2px; }
 
-  /* ── Visual Selector ── */
-  .field-row {
-    display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
-    flex-wrap: wrap;
-  }
-  .field-label {
-    width: 36px; font-size: 12px; color: var(--text-dim);
-    text-align: right; flex-shrink: 0;
-  }
-  .options {
-    display: flex; flex-wrap: wrap; gap: 4px;
-  }
+  /* Visual Selector */
+  .field-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .field-label { width: 36px; font-size: 12px; color: var(--text-dim); text-align: right; flex-shrink: 0; }
+  .options { display: flex; flex-wrap: wrap; gap: 4px; }
   .opt {
-    padding: 3px 10px; border: 1px solid var(--border);
-    border-radius: 14px; font-size: 11px; font-family: var(--font-mono);
-    color: var(--text-dim); cursor: pointer; transition: all 0.12s;
-    background: var(--bg); white-space: nowrap;
+    padding: 3px 10px; border: 1px solid var(--border); border-radius: 14px;
+    font-size: 11px; font-family: var(--font-mono); color: var(--text-dim);
+    cursor: pointer; transition: all 0.12s; background: var(--bg); white-space: nowrap;
   }
   .opt:hover { border-color: var(--accent); color: var(--text); }
   .opt.selected { background: var(--accent); color: var(--bg); border-color: var(--accent); }
-  .opt-custom {
-    font-family: var(--font-sans); font-style: italic;
-    padding: 3px 8px; min-width: 60px;
-  }
+  .opt-custom { font-family: var(--font-sans); font-style: italic; padding: 3px 8px; min-width: 60px; }
 
   .expr-preview {
-    margin-top: 12px; padding: 12px 16px;
-    background: var(--bg); border-radius: var(--radius-sm);
-    display: flex; align-items: center; gap: 12px;
+    margin-top: 12px; padding: 12px 16px; background: var(--bg);
+    border-radius: var(--radius-sm); display: flex; align-items: center; gap: 12px;
   }
-  .expr-preview .expr {
-    font-family: var(--font-mono); font-size: 20px; letter-spacing: 1px;
-    color: var(--accent); flex: 1;
-  }
-  .expr-preview .human {
-    font-size: 13px; color: var(--text-dim);
-  }
+  .expr-preview .expr { font-family: var(--font-mono); font-size: 20px; letter-spacing: 1px; color: var(--accent); flex: 1; }
+  .expr-preview .human { font-size: 13px; color: var(--text-dim); }
+
   .copy-sm {
     padding: 4px 12px; border: 1px solid var(--border); border-radius: 3px;
-    background: transparent; color: var(--text-dim); font-size: 12px;
-    cursor: pointer; font-family: var(--font-sans);
+    background: transparent; color: var(--text-dim); font-size: 12px; cursor: pointer; font-family: var(--font-sans);
   }
   .copy-sm:hover { background: var(--hover); color: var(--text); }
 
-  /* ── Reverse ── */
-  .reverse-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 6px;
-  }
+  /* Reverse */
+  .reverse-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 6px; }
   .rev-item {
     padding: 8px 12px; background: var(--bg); border: 1px solid var(--border);
-    border-radius: var(--radius-sm); cursor: pointer; transition: all 0.12s;
-    font-size: 13px; color: var(--text-dim);
+    border-radius: var(--radius-sm); cursor: pointer; transition: all 0.12s; font-size: 13px; color: var(--text-dim);
   }
   .rev-item:hover { border-color: var(--accent); color: var(--text); background: var(--hover); }
-  .rev-item .rev-expr {
-    font-family: var(--font-mono); font-size: 11px; color: var(--accent); margin-top: 3px;
-  }
+  .rev-item .rev-expr { font-family: var(--font-mono); font-size: 11px; color: var(--accent); margin-top: 3px; }
 
-  /* ── Run Times ── */
+  /* Run Times */
   .run-section { display: flex; gap: 16px; }
   .run-section .half { flex: 1; min-width: 0; }
-  .run-list {
-    list-style: none; font-family: var(--font-mono); font-size: 13px;
-  }
+  .run-list { list-style: none; font-family: var(--font-mono); font-size: 13px; }
   .run-list li {
-    display: flex; align-items: center; gap: 8px;
-    padding: 6px 8px; border-radius: var(--radius-sm);
+    display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: var(--radius-sm);
   }
   .run-list li + li { border-top: 1px solid var(--border); }
-  .run-list li .dot {
-    width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
-  }
+  .run-list li .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
   .run-list li .dot.past { background: var(--text-dim); }
   .run-list li .dot.next { background: var(--success); }
-  .run-list li .ts {
-    color: var(--text-dim); font-size: 11px; margin-left: auto;
-  }
+  .run-list li .ts { color: var(--text-dim); font-size: 11px; margin-left: auto; }
   .no-data { color: var(--text-dim); font-size: 13px; padding: 8px; }
-
-  /* nav */
-  .nav { margin-top: 20px; text-align: center; }
-  .nav a { color: var(--text-dim); font-size: 13px; text-decoration: none; margin: 0 10px; }
-  .nav a:hover { color: var(--accent); }
 
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #585b70; border-radius: 3px; }
 
   .toast {
-    position: fixed; top: 20px; right: 20px;
-    background: var(--success); color: var(--bg);
-    padding: 8px 16px; border-radius: var(--radius-sm);
-    font-size: 13px; font-weight: 600;
-    opacity: 0; transform: translateY(-10px);
-    transition: all 0.25s; pointer-events: none; z-index: 100;
+    position: fixed; top: 20px; right: 20px; background: var(--success); color: var(--bg);
+    padding: 8px 16px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600;
+    opacity: 0; transform: translateY(-10px); transition: all 0.25s; pointer-events: none; z-index: 100;
   }
   .toast.show { opacity: 1; transform: translateY(0); }
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="header">
-    <div class="left">
-      <h1>Cron</h1>
-      <div class="sub">表达式可视化构建 &amp; 解析</div>
-    </div>
-    <div class="right">
-      <a href="index.html">首页</a>
-      <a href="json-formatter.html">JSON</a>
-      <a href="timestamp.html">Timestamp</a>
-      <button onclick="toggleTheme()" style="background:none;border:1px solid var(--border);border-radius:4px;color:var(--text-dim);cursor:pointer;font-size:14px;padding:2px 6px;line-height:1" title="切换主题" id="themeBtn">🌙</button>
-    </div>
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="name">Cron</div>
+    <div class="sub">定时任务表达式</div>
   </div>
+  <nav class="sidebar-nav">
+    <a href="index.html"><span class="icon">🏠</span> 首页</a>
+    <a href="json-formatter.html"><span class="icon">{ }</span> JSON</a>
+    <a href="timestamp.html"><span class="icon">⏱</span> Timestamp</a>
+    <a href="cron.html" class="active"><span class="icon">🕐</span> Cron</a>
+  </nav>
+  <div class="sidebar-bottom">
+    <button onclick="toggleTheme()" id="themeBtn">🌙 深色模式</button>
+  </div>
+</aside>
 
+<div class="main-content">
+<div class="container">
   <!-- Visual Selector -->
   <div class="card">
     <div class="card-title">可视化选择</div>
@@ -194,6 +182,8 @@
     </div>
   </div>
 </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -201,24 +191,20 @@
   var WEEKS = ["日","一","二","三","四","五","六"];
   var pad = function(n){ return n<10?"0"+n:n; };
 
-  /* ── Field options ── */
   var FIELD_OPTIONS = [
-    /* minute */  ["*","*/5","*/10","*/15","*/30","0","15","30","45"],
-    /* hour */    ["*","*/2","*/3","*/6","0","6","8","9","12","18","22"],
-    /* day */     ["*","*/2","1","15","L"],
-    /* month */   ["*","1","3","6","9","12"],
-    /* weekday */ ["*","1-5","0","1","6","6,0"],
+    ["*","*/5","*/10","*/15","*/30","0","15","30","45"],
+    ["*","*/2","*/3","*/6","0","6","8","9","12","18","22"],
+    ["*","*/2","1","15","L"],
+    ["*","1","3","6","9","12"],
+    ["*","1-5","0","1","6","6,0"],
   ];
   var FIELD_NAMES = ["分钟","小时","日","月","星期"];
   var FIELD_RANGE = [[0,59],[0,23],[1,31],[1,12],[0,6]];
-
   var currentExpr = ["*","*","*","*","*"];
-  var manualInput = false;
 
-  /* ── Validation ── */
   function validateField(v, min, max) {
     if (v === "*") return true;
-    if (v === "L") return true; /* last day */
+    if (v === "L") return true;
     if (/^\*\/\d+$/.test(v)) { var s = parseInt(v.split("/")[1]); return s >= 1 && s <= max; }
     if (/^\d+\/\d+$/.test(v)) { var p = v.split("/"); var b = parseInt(p[0]), s = parseInt(p[1]); return b >= min && b <= max && s >= 1; }
     if (/^\d+-\d+$/.test(v)) { var r = v.split("-"); return parseInt(r[0]) >= min && parseInt(r[1]) <= max; }
@@ -226,87 +212,64 @@
     if (/^\d+$/.test(v)) { var n = parseInt(v); return n >= min && n <= max; }
     return false;
   }
-
   function validExpr(parts) {
     if (parts.length !== 5) return false;
     for (var i = 0; i < 5; i++) {
-      var range = FIELD_RANGE[i];
-      if (!validateField(parts[i], range[0], range[1]) && parts[i] !== "L") return false;
+      if (!validateField(parts[i], FIELD_RANGE[i][0], FIELD_RANGE[i][1]) && parts[i] !== "L") return false;
     }
     return true;
   }
 
-  /* ── Human readable ── */
   function humanSentence(parts) {
     var s = [];
-    var m = parts[0], h = parts[1], d = parts[2], mo = parts[3], w = parts[4];
-
-    if (m === "*") s.push("每分钟");
-    else if (/^\*\/\d+$/.test(m)) s.push("每"+m.split("/")[1]+"分钟");
-    else s.push("第"+m+"分");
-
-    if (h === "*") s.push("每小时");
-    else if (/^\*\/\d+$/.test(h)) s.push("每"+h.split("/")[1]+"小时");
-    else s.push(h+"点");
-
-    if (d !== "*") {
-      if (d === "L") s.push("最后一天");
-      else if (/^\*\/\d+$/.test(d)) s.push("每"+d.split("/")[1]+"天");
-      else s.push(d+"号");
+    if (parts[0] === "*") s.push("每分钟");
+    else if (/^\*\/\d+$/.test(parts[0])) s.push("每"+parts[0].split("/")[1]+"分钟");
+    else s.push("第"+parts[0]+"分");
+    if (parts[1] === "*") s.push("每小时");
+    else if (/^\*\/\d+$/.test(parts[1])) s.push("每"+parts[1].split("/")[1]+"小时");
+    else s.push(parts[1]+"点");
+    if (parts[2] !== "*") {
+      if (parts[2] === "L") s.push("最后一天");
+      else if (/^\*\/\d+$/.test(parts[2])) s.push("每"+parts[2].split("/")[1]+"天");
+      else s.push(parts[2]+"号");
     }
-    if (mo !== "*") s.push(mo+"月");
-    if (w !== "*") {
-      if (w === "1-5") s.push("工作日");
-      else if (w === "6,0" || w === "0,6") s.push("周末");
-      else if (/^\d+$/.test(w)) s.push("周"+WEEKS[parseInt(w)]);
-      else s.push(w);
+    if (parts[3] !== "*") s.push(parts[3]+"月");
+    if (parts[4] !== "*") {
+      if (parts[4] === "1-5") s.push("工作日");
+      else if (parts[4] === "6,0" || parts[4] === "0,6") s.push("周末");
+      else if (/^\d+$/.test(parts[4])) s.push("周"+WEEKS[parseInt(parts[4])]);
+      else s.push(parts[4]);
     }
     return s.join("，");
   }
 
-  /* ── Build selector UI ── */
   function buildSelector() {
     var html = "";
     var labels = ["分","时","日","月","周"];
     for (var i = 0; i < 5; i++) {
       var opts = FIELD_OPTIONS[i];
-      html += '<div class="field-row">';
-      html += '<span class="field-label">'+labels[i]+'</span>';
-      html += '<div class="options">';
+      html += '<div class="field-row"><span class="field-label">'+labels[i]+'</span><div class="options">';
       for (var j = 0; j < opts.length; j++) {
-        var sel = currentExpr[i] === opts[j] ? " selected" : "";
-        html += '<span class="opt'+sel+'" data-field="'+i+'" data-val="'+opts[j]+'">'+opts[j]+'</span>';
+        html += '<span class="opt'+(currentExpr[i]===opts[j]?" selected":"")+'" data-field="'+i+'" data-val="'+opts[j]+'">'+opts[j]+'</span>';
       }
-      /* custom input per field */
       html += '<input class="opt opt-custom" data-field="'+i+'" placeholder="自定义" value="'+(FIELD_OPTIONS[i].indexOf(currentExpr[i])===-1&&currentExpr[i]!=="*"?currentExpr[i]:"")+'" style="width:70px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:11px;padding:3px 8px;border-radius:14px;outline:none">';
       html += '</div></div>';
     }
     document.getElementById("selector").innerHTML = html;
-    bindSelectorEvents();
-  }
-
-  function bindSelectorEvents() {
-    /* button clicks */
-    document.querySelectorAll("#selector .opt").forEach(function(el){
-      if (el.classList.contains("opt-custom")) return;
+    document.querySelectorAll("#selector .opt:not(.opt-custom)").forEach(function(el){
       el.addEventListener("click", function(){
-        var field = parseInt(this.getAttribute("data-field"));
-        var val = this.getAttribute("data-val");
-        currentExpr[field] = val;
+        currentExpr[parseInt(this.getAttribute("data-field"))] = this.getAttribute("data-val");
         updateAll();
       });
     });
-    /* custom inputs */
     document.querySelectorAll("#selector .opt-custom").forEach(function(input){
       input.addEventListener("input", function(){
-        var field = parseInt(this.getAttribute("data-field"));
-        currentExpr[field] = this.value.trim() || "*";
+        currentExpr[parseInt(this.getAttribute("data-field"))] = this.value.trim() || "*";
         updateAll();
       });
     });
   }
 
-  /* ── Update everything ── */
   function updateAll() {
     var expr = currentExpr.join(" ");
     document.getElementById("exprPreview").textContent = expr;
@@ -315,160 +278,88 @@
     renderRuns();
   }
 
-  /* ── Match field ── */
   function matchField(expr, val) {
     if (expr === "*") return true;
-    if (expr === "L") return false; /* handled separately */
+    if (expr === "L") return false;
     if (/^\*\/\d+$/.test(expr)) return val % parseInt(expr.split("/")[1]) === 0;
-    if (/^\d+\/\d+$/.test(expr)) {
-      var p = expr.split("/"); var b = parseInt(p[0]), s = parseInt(p[1]);
-      return val >= b && (val - b) % s === 0;
-    }
-    if (/^\d+-\d+$/.test(expr)) {
-      var r = expr.split("-"); return val >= parseInt(r[0]) && val <= parseInt(r[1]);
-    }
-    if (/^[\d,]+$/.test(expr)) return expr.split(",").indexOf(String(val)) !== -1;
-    if (/^\d+$/.test(expr)) return val === parseInt(expr);
+    if (/^\d+\/\d+$/.test(expr)) { var p=expr.split("/"); return val>=parseInt(p[0])&&(val-parseInt(p[0]))%parseInt(p[1])===0; }
+    if (/^\d+-\d+$/.test(expr)) { var r=expr.split("-"); return val>=parseInt(r[0])&&val<=parseInt(r[1]); }
+    if (/^[\d,]+$/.test(expr)) return expr.split(",").indexOf(String(val))!==-1;
+    if (/^\d+$/.test(expr)) return val===parseInt(expr);
     return false;
   }
-
   function matches(parts, d) {
-    return matchField(parts[0], d.getMinutes()) &&
-           matchField(parts[1], d.getHours()) &&
-           (parts[2] === "L" ? d.getDate() === new Date(d.getFullYear(), d.getMonth()+1, 0).getDate() : matchField(parts[2], d.getDate())) &&
-           matchField(parts[3], d.getMonth()+1) &&
-           matchField(parts[4], d.getDay());
+    return matchField(parts[0],d.getMinutes())&&matchField(parts[1],d.getHours())&&
+      (parts[2]==="L"?d.getDate()===new Date(d.getFullYear(),d.getMonth()+1,0).getDate():matchField(parts[2],d.getDate()))&&
+      matchField(parts[3],d.getMonth()+1)&&matchField(parts[4],d.getDay());
   }
 
-  /* ── Get past N + next N runs ── */
-  function getRuns(parts, pastCount, nextCount) {
-    var past = [], next = [];
-    var now = new Date();
-
-    /* past */
-    var cursor = new Date(now);
-    cursor.setSeconds(0,0);
-    cursor.setMinutes(cursor.getMinutes() - 1);
-    var iter = 0, maxIter = 525600; /* 1 year */
-    while (past.length < pastCount && iter < maxIter) {
-      cursor.setMinutes(cursor.getMinutes() - 1);
-      iter++;
-      if (matches(parts, cursor)) {
-        past.unshift(new Date(cursor));
-      }
-    }
-
-    /* next */
-    cursor = new Date(now);
-    cursor.setSeconds(0,0);
-    iter = 0;
-    while (next.length < nextCount && iter < maxIter) {
-      cursor.setMinutes(cursor.getMinutes() + 1);
-      iter++;
-      if (matches(parts, cursor)) {
-        next.push(new Date(cursor));
-      }
-    }
-    return { past: past, next: next };
+  function getRuns(parts, pastC, nextC) {
+    var past=[], next=[], now=new Date(), cursor, iter=0, max=525600;
+    cursor=new Date(now); cursor.setSeconds(0,0); cursor.setMinutes(cursor.getMinutes()-1);
+    while(past.length<pastC&&iter<max){ cursor.setMinutes(cursor.getMinutes()-1); iter++; if(matches(parts,cursor)) past.unshift(new Date(cursor)); }
+    cursor=new Date(now); cursor.setSeconds(0,0); iter=0;
+    while(next.length<nextC&&iter<max){ cursor.setMinutes(cursor.getMinutes()+1); iter++; if(matches(parts,cursor)) next.push(new Date(cursor)); }
+    return {past:past,next:next};
   }
 
   function renderRuns() {
     if (!validExpr(currentExpr)) {
-      document.getElementById("pastRuns").innerHTML = '<div class="no-data">表达式无效</div>';
-      document.getElementById("nextRuns").innerHTML = '<div class="no-data">表达式无效</div>';
+      document.getElementById("pastRuns").innerHTML='<div class="no-data">表达式无效</div>';
+      document.getElementById("nextRuns").innerHTML='<div class="no-data">表达式无效</div>';
       return;
     }
-
-    var runs = getRuns(currentExpr, 5, 5);
-    renderList("pastRuns", runs.past, "past");
-    renderList("nextRuns", runs.next, "next");
-  }
-
-  function renderList(elId, dates, type) {
-    var el = document.getElementById(elId);
-    if (!dates.length) { el.innerHTML = '<div class="no-data">无匹配</div>'; return; }
-    var html = "";
-    dates.forEach(function(d){
-      var str = d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+" "+
-                pad(d.getHours())+":"+pad(d.getMinutes())+":00";
-      var ts = Math.floor(d.getTime()/1000);
-      html += '<li>'+
-        '<span class="dot '+type+'"></span>'+
-        str+' <span style="color:var(--text-dim)">周'+WEEKS[d.getDay()]+'</span>'+
-        '<span class="ts">'+ts+'</span>'+
-      '</li>';
+    var runs=getRuns(currentExpr,5,5);
+    var pEl=document.getElementById("pastRuns"), nEl=document.getElementById("nextRuns");
+    pEl.innerHTML=""; nEl.innerHTML="";
+    runs.past.forEach(function(d){
+      pEl.innerHTML+='<li><span class="dot past"></span>'+d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+" "+pad(d.getHours())+":"+pad(d.getMinutes())+":00 周"+WEEKS[d.getDay()]+'<span class="ts">'+Math.floor(d.getTime()/1000)+'</span></li>';
     });
-    el.innerHTML = html;
+    runs.next.forEach(function(d){
+      nEl.innerHTML+='<li><span class="dot next"></span>'+d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+" "+pad(d.getHours())+":"+pad(d.getMinutes())+":00 周"+WEEKS[d.getDay()]+'<span class="ts">'+Math.floor(d.getTime()/1000)+'</span></li>';
+    });
+    if(!runs.past.length) pEl.innerHTML='<div class="no-data">无匹配</div>';
+    if(!runs.next.length) nEl.innerHTML='<div class="no-data">无匹配</div>';
   }
 
-  /* ── Copy ── */
-  document.getElementById("copyExpr").addEventListener("click", function(){
-    navigator.clipboard.writeText(currentExpr.join(" ")).then(function(){ toast("已复制"); });
-  });
+  document.getElementById("copyExpr").addEventListener("click",function(){ copy(currentExpr.join(" ")); });
+  document.getElementById("exprPreview").addEventListener("click",function(){ copy(currentExpr.join(" ")); });
+  document.getElementById("exprPreview").style.cursor="pointer";
 
-  /* ── Reverse parse presets ── */
-  var REVERSE_PRESETS = [
-    { label: "每分钟", expr: "* * * * *" },
-    { label: "每5分钟", expr: "*/5 * * * *" },
-    { label: "每10分钟", expr: "*/10 * * * *" },
-    { label: "每半小时", expr: "*/30 * * * *" },
-    { label: "每小时整点", expr: "0 * * * *" },
-    { label: "每2小时", expr: "0 */2 * * *" },
-    { label: "每6小时", expr: "0 */6 * * *" },
-    { label: "每天9点", expr: "0 9 * * *" },
-    { label: "每天12点", expr: "0 12 * * *" },
-    { label: "工作日9点", expr: "0 9 * * 1-5" },
-    { label: "每周一8点", expr: "0 8 * * 1" },
-    { label: "每周末0点", expr: "0 0 * * 6,0" },
-    { label: "每月1号0点", expr: "0 0 1 * *" },
-    { label: "每月15号9点", expr: "0 9 15 * *" },
-    { label: "每月最后一天", expr: "0 0 L * *" },
-    { label: "每年1月1日0点", expr: "0 0 1 1 *" },
+  var REVERSE_PRESETS=[
+    {label:"每分钟",expr:"* * * * *"},{label:"每5分钟",expr:"*/5 * * * *"},
+    {label:"每10分钟",expr:"*/10 * * * *"},{label:"每半小时",expr:"*/30 * * * *"},
+    {label:"每小时整点",expr:"0 * * * *"},{label:"每2小时",expr:"0 */2 * * *"},
+    {label:"每6小时",expr:"0 */6 * * *"},{label:"每天9点",expr:"0 9 * * *"},
+    {label:"每天12点",expr:"0 12 * * *"},{label:"工作日9点",expr:"0 9 * * 1-5"},
+    {label:"每周一8点",expr:"0 8 * * 1"},{label:"每周末0点",expr:"0 0 * * 6,0"},
+    {label:"每月1号0点",expr:"0 0 1 * *"},{label:"每月15号9点",expr:"0 9 15 * *"},
+    {label:"每月最后一天",expr:"0 0 L * *"},{label:"每年1月1日0点",expr:"0 0 1 1 *"},
   ];
-
-  var rGrid = document.getElementById("reverseGrid");
+  var rGrid=document.getElementById("reverseGrid");
   REVERSE_PRESETS.forEach(function(p){
-    var div = document.createElement("div");
-    div.className = "rev-item";
-    div.innerHTML = p.label+'<div class="rev-expr">'+p.expr+'</div>';
-    div.addEventListener("click", function(){
-      currentExpr = p.expr.split(" ");
-      updateAll();
-    });
+    var div=document.createElement("div"); div.className="rev-item";
+    div.innerHTML=p.label+'<div class="rev-expr">'+p.expr+'</div>';
+    div.addEventListener("click",function(){ currentExpr=p.expr.split(" "); updateAll(); });
     rGrid.appendChild(div);
   });
 
-  /* ── Theme ── */
-  var saved = localStorage.getItem("theme") || "dark";
-  document.documentElement.setAttribute("data-theme", saved);
-  document.getElementById("themeBtn").textContent = saved === "light" ? "☀️" : "🌙";
+  buildSelector(); renderRuns();
 
-  window.toggleTheme = function() {
-    var cur = document.documentElement.getAttribute("data-theme");
-    var next = cur === "light" ? "dark" : "light";
-    document.documentElement.setAttribute("data-theme", next);
-    localStorage.setItem("theme", next);
-    document.getElementById("themeBtn").textContent = next === "light" ? "☀️" : "🌙";
+  /* Theme */
+  var saved=localStorage.getItem("theme")||"dark";
+  document.documentElement.setAttribute("data-theme",saved);
+  document.getElementById("themeBtn").textContent=saved==="light"?"☀️ 浅色模式":"🌙 深色模式";
+  window.toggleTheme=function(){
+    var n=document.documentElement.getAttribute("data-theme")==="light"?"dark":"light";
+    document.documentElement.setAttribute("data-theme",n);
+    localStorage.setItem("theme",n);
+    document.getElementById("themeBtn").textContent=n==="light"?"☀️ 浅色模式":"🌙 深色模式";
   };
 
-  /* ── Init ── */
-  buildSelector();
-  renderRuns();
-
-  /* ── Toast ── */
   var tmr;
-  function toast(msg) {
-    var el = document.getElementById("toast");
-    clearTimeout(tmr);
-    el.textContent = msg; el.classList.add("show");
-    tmr = setTimeout(function(){ el.classList.remove("show"); }, 1500);
-  }
-
-  /* also expose expr preview click to copy */
-  document.getElementById("exprPreview").addEventListener("click", function(){
-    navigator.clipboard.writeText(currentExpr.join(" ")).then(function(){ toast("已复制"); });
-  });
-  document.getElementById("exprPreview").style.cursor = "pointer";
+  function toast(msg){ clearTimeout(tmr); var e=document.getElementById("toast"); e.textContent=msg; e.classList.add("show"); tmr=setTimeout(function(){e.classList.remove("show")},1500); }
+  function copy(text){ navigator.clipboard.writeText(text).then(function(){ toast("已复制"); }); }
 })();
 </script>
 </body>

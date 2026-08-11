@@ -8,31 +8,56 @@
   :root {
     --bg: #1e1e2e; --panel: #252536; --border: #3a3a5c;
     --text: #cdd6f4; --text-dim: #6c7086;
-    --accent: #89b4fa; --success: #a6e3a1; --warn: #fab387;
+    --accent: #89b4fa; --success: #a6e3a1; --warn: #fab387; --error: #f38ba8;
     --hover: #313244; --scrollbar-thumb: #585b70;
     --radius: 8px; --radius-sm: 4px;
     --font-mono: "SF Mono","Fira Code","Cascadia Code","JetBrains Mono",Consolas,monospace;
     --font-sans: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
   }
-
   [data-theme="light"] {
     --bg: #f4f4f5; --panel: #ffffff; --border: #d4d4d8;
     --text: #18181b; --text-dim: #71717a;
     --accent: #2563eb; --success: #16a34a; --warn: #ea580c; --error: #dc2626;
     --hover: #e4e4e7; --scrollbar-thumb: #a1a1aa;
   }
-
   *{margin:0;padding:0;box-sizing:border-box}
   body {
     background: var(--bg); color: var(--text);
-    font-family: var(--font-sans); min-height: 100vh;
-    display: flex; flex-direction: column; align-items: center;
+    font-family: var(--font-sans); min-height: 100vh; display: flex;
   }
-  .container { width: 100%; padding: 32px 32px 60px; }
 
-  .header { text-align: center; margin-bottom: 24px; }
-  .header h1 { font-size: 22px; color: var(--accent); }
-  .header .sub { color: var(--text-dim); font-size: 12px; margin-top: 4px; }
+  /* Sidebar */
+  .sidebar {
+    width: 200px; flex-shrink: 0; background: var(--panel);
+    border-right: 1px solid var(--border); display: flex;
+    flex-direction: column; padding: 24px 0; min-height: 100vh;
+  }
+  .sidebar-brand {
+    padding: 0 20px 20px; border-bottom: 1px solid var(--border); margin-bottom: 8px;
+  }
+  .sidebar-brand .name { font-size: 20px; font-weight: 700; color: var(--accent); }
+  .sidebar-brand .sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .sidebar-nav { flex: 1; padding: 8px 0; }
+  .sidebar-nav a {
+    display: flex; align-items: center; gap: 10px; padding: 10px 20px;
+    color: var(--text-dim); text-decoration: none; font-size: 14px;
+    transition: all 0.12s; border-left: 3px solid transparent;
+  }
+  .sidebar-nav a:hover { color: var(--text); background: var(--hover); }
+  .sidebar-nav a.active { color: var(--accent); border-left-color: var(--accent); background: rgba(137,180,250,0.08); }
+  .sidebar-nav a .icon { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; }
+  .sidebar-bottom { padding: 16px 20px; border-top: 1px solid var(--border); }
+  .sidebar-bottom button {
+    width: 100%; padding: 8px; border: 1px solid var(--border);
+    border-radius: var(--radius-sm); background: var(--bg);
+    color: var(--text); cursor: pointer; font-size: 13px;
+    font-family: var(--font-sans); transition: all 0.12s;
+  }
+  .sidebar-bottom button:hover { border-color: var(--accent); }
+
+  /* Content */
+  .main-content { flex: 1; overflow-y: auto; min-width: 0; }
+  .container { padding: 28px 36px 40px; }
 
   /* Live clock */
   .live-clock {
@@ -40,15 +65,12 @@
     border-radius: var(--radius); padding: 24px; text-align: center; margin-bottom: 20px;
   }
   .live-clock .label { color: var(--text-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
-  .live-clock .datetime {
-    font-family: var(--font-mono); font-size: 26px; font-weight: 600; color: var(--text);
-  }
+  .live-clock .datetime { font-family: var(--font-mono); font-size: 26px; font-weight: 600; color: var(--text); }
   .live-clock .ts-row { display: flex; justify-content: center; gap: 32px; margin-top: 10px; }
   .live-clock .ts-item { text-align: center; }
   .live-clock .ts-val {
     font-family: var(--font-mono); font-size: 14px; color: var(--accent);
-    cursor: pointer; padding: 4px 10px; border-radius: var(--radius-sm);
-    transition: background 0.15s;
+    cursor: pointer; padding: 4px 10px; border-radius: var(--radius-sm); transition: background 0.15s;
   }
   .live-clock .ts-val:hover { background: var(--hover); }
   .live-clock .ts-unit { font-size: 11px; color: var(--text-dim); }
@@ -67,35 +89,24 @@
 
   .input-row { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
   input[type="text"], input.big {
-    flex: 1; padding: 10px 14px;
-    background: var(--bg); border: 1px solid var(--border);
-    border-radius: var(--radius-sm); color: var(--text);
-    font-family: var(--font-mono); font-size: 14px; outline: none;
-    transition: border-color 0.15s;
+    flex: 1; padding: 10px 14px; background: var(--bg); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); color: var(--text); font-family: var(--font-mono);
+    font-size: 14px; outline: none; transition: border-color 0.15s;
   }
   input:focus { border-color: var(--accent); }
 
-  /* segmented inputs */
-  .segments {
-    display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
-  }
+  .segments { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
   .seg-input {
-    width: 52px; padding: 8px 0; text-align: center;
-    background: var(--bg); border: 1px solid var(--border);
-    border-radius: var(--radius-sm); color: var(--text);
-    font-family: var(--font-mono); font-size: 14px; outline: none;
-    transition: border-color 0.15s;
+    width: 56px; padding: 8px 0; text-align: center; background: var(--bg);
+    border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text);
+    font-family: var(--font-mono); font-size: 14px; outline: none; transition: border-color 0.15s;
   }
   .seg-input:focus { border-color: var(--accent); }
-  .seg-label {
-    font-size: 12px; color: var(--text-dim); padding: 0 2px;
-    user-select: none;
-  }
+  .seg-label { font-size: 12px; color: var(--text-dim); padding: 0 2px; user-select: none; }
 
   .btn {
-    padding: 8px 16px; border: 1px solid var(--border);
-    border-radius: var(--radius-sm); background: var(--bg);
-    color: var(--text); font-size: 13px; cursor: pointer;
+    padding: 8px 16px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--bg); color: var(--text); font-size: 13px; cursor: pointer;
     transition: all 0.15s; font-family: var(--font-sans); white-space: nowrap;
   }
   .btn:hover { background: var(--hover); border-color: var(--accent); }
@@ -103,9 +114,9 @@
   .btn.mini { padding: 4px 10px; font-size: 11px; }
 
   .result {
-    background: var(--bg); border-radius: var(--radius-sm);
-    padding: 12px 16px; font-family: var(--font-mono); font-size: 14px;
-    min-height: 44px; display: flex; align-items: center; gap: 10px;
+    background: var(--bg); border-radius: var(--radius-sm); padding: 12px 16px;
+    font-family: var(--font-mono); font-size: 14px; min-height: 44px;
+    display: flex; align-items: center; gap: 10px;
   }
   .result .val { flex: 1; word-break: break-all; }
   .result .empty { color: var(--text-dim); }
@@ -120,32 +131,37 @@
   .hint { font-size: 12px; color: var(--text-dim); margin-top: 6px; }
   .hint.error { color: #f38ba8; }
 
-  .nav { margin-top: 24px; text-align: center; }
-  .nav a { color: var(--text-dim); font-size: 13px; text-decoration: none; margin: 0 10px; }
-  .nav a:hover { color: var(--accent); }
-
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
 
   .toast {
-    position: fixed; top: 20px; right: 20px;
-    background: var(--success); color: var(--bg);
-    padding: 8px 16px; border-radius: var(--radius-sm);
-    font-size: 13px; font-weight: 600;
-    opacity: 0; transform: translateY(-10px);
-    transition: all 0.25s; pointer-events: none; z-index: 100;
+    position: fixed; top: 20px; right: 20px; background: var(--success); color: var(--bg);
+    padding: 8px 16px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600;
+    opacity: 0; transform: translateY(-10px); transition: all 0.25s; pointer-events: none; z-index: 100;
   }
   .toast.show { opacity: 1; transform: translateY(0); }
 </style>
 </head>
 <body>
-<div class="container">
-
-  <div class="header">
-    <h1>Timestamp</h1>
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="name">Timestamp</div>
     <div class="sub">Unix 时间戳转换</div>
   </div>
+  <nav class="sidebar-nav">
+    <a href="index.html"><span class="icon">🏠</span> 首页</a>
+    <a href="json-formatter.html"><span class="icon">{ }</span> JSON</a>
+    <a href="timestamp.html" class="active"><span class="icon">⏱</span> Timestamp</a>
+    <a href="cron.html"><span class="icon">🕐</span> Cron</a>
+  </nav>
+  <div class="sidebar-bottom">
+    <button onclick="toggleTheme()" id="themeBtn">🌙 深色模式</button>
+  </div>
+</aside>
+
+<div class="main-content">
+<div class="container">
 
   <!-- Live clock -->
   <div class="live-clock">
@@ -177,22 +193,16 @@
     <div class="hint" id="tsHint">自动识别秒/毫秒</div>
   </div>
 
-  <!-- Datetime → Timestamp (segmented) -->
+  <!-- Datetime → Timestamp -->
   <div class="card">
     <div class="card-title">日期时间 → 时间戳</div>
     <div class="segments" id="segments">
-      <input class="seg-input" id="segYear"  placeholder="年" maxlength="4" pattern="\d*" inputmode="numeric">
-      <span class="seg-label">年</span>
-      <input class="seg-input" id="segMonth" placeholder="月" maxlength="2" pattern="\d*" inputmode="numeric">
-      <span class="seg-label">月</span>
-      <input class="seg-input" id="segDay"   placeholder="日" maxlength="2" pattern="\d*" inputmode="numeric">
-      <span class="seg-label">日</span>
-      <input class="seg-input" id="segHour"  placeholder="时" maxlength="2" pattern="\d*" inputmode="numeric">
-      <span class="seg-label">时</span>
-      <input class="seg-input" id="segMin"   placeholder="分" maxlength="2" pattern="\d*" inputmode="numeric">
-      <span class="seg-label">分</span>
-      <input class="seg-input" id="segSec"   placeholder="秒" maxlength="2" pattern="\d*" inputmode="numeric">
-      <span class="seg-label">秒</span>
+      <input class="seg-input" id="segYear" placeholder="年" maxlength="4" pattern="\d*" inputmode="numeric"><span class="seg-label">年</span>
+      <input class="seg-input" id="segMonth" placeholder="月" maxlength="2" pattern="\d*" inputmode="numeric"><span class="seg-label">月</span>
+      <input class="seg-input" id="segDay" placeholder="日" maxlength="2" pattern="\d*" inputmode="numeric"><span class="seg-label">日</span>
+      <input class="seg-input" id="segHour" placeholder="时" maxlength="2" pattern="\d*" inputmode="numeric"><span class="seg-label">时</span>
+      <input class="seg-input" id="segMin" placeholder="分" maxlength="2" pattern="\d*" inputmode="numeric"><span class="seg-label">分</span>
+      <input class="seg-input" id="segSec" placeholder="秒" maxlength="2" pattern="\d*" inputmode="numeric"><span class="seg-label">秒</span>
       <button class="btn mini" id="btnNow">现在</button>
     </div>
     <div class="result" style="flex-direction:column;align-items:flex-start;gap:6px;margin-top:10px">
@@ -213,197 +223,87 @@
     </div>
     <div class="hint" id="dtHint">选择或输入日期，自动转换</div>
   </div>
-
-  <div class="nav">
-    <a href="index.html">← 首页</a>
-    <a href="json-formatter.html">JSON</a>
-    <a href="cron.html">Cron</a>
-    <button onclick="toggleTheme()" style="background:none;border:1px solid var(--border);border-radius:4px;color:var(--text-dim);cursor:pointer;font-size:14px;padding:2px 6px;line-height:1" title="切换主题" id="themeBtn">🌙</button>
-  </div>
 </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 (function(){
-  var tsSecEl = document.getElementById("ts-sec");
-  var tsMsEl  = document.getElementById("ts-ms");
-  var dtEl    = document.getElementById("datetime");
-  var toastEl = document.getElementById("toast");
-
-  var tsInput  = document.getElementById("tsInput");
-  var tsResult = document.getElementById("tsResult");
-  var tsHint   = document.getElementById("tsHint");
-  var copyTs   = document.getElementById("copyTsResult");
-
-  /* seg inputs */
-  var segYear  = document.getElementById("segYear");
-  var segMonth = document.getElementById("segMonth");
-  var segDay   = document.getElementById("segDay");
-  var segHour  = document.getElementById("segHour");
-  var segMin   = document.getElementById("segMin");
-  var segSec   = document.getElementById("segSec");
-  var btnNow   = document.getElementById("btnNow");
-
-  var dtReadable = document.getElementById("dtReadable");
-  var dtSec   = document.getElementById("dtSec");
-  var dtMs    = document.getElementById("dtMs");
-  var dtHint  = document.getElementById("dtHint");
-  var copyDtSec = document.getElementById("copyDtSec");
-  var copyDtMs  = document.getElementById("copyDtMs");
-
+  var tsSecEl=document.getElementById("ts-sec"), tsMsEl=document.getElementById("ts-ms"), dtEl=document.getElementById("datetime"), toastEl=document.getElementById("toast");
+  var tsInput=document.getElementById("tsInput"), tsResult=document.getElementById("tsResult"), tsHint=document.getElementById("tsHint"), copyTs=document.getElementById("copyTsResult");
+  var segYear=document.getElementById("segYear"),segMonth=document.getElementById("segMonth"),segDay=document.getElementById("segDay");
+  var segHour=document.getElementById("segHour"),segMin=document.getElementById("segMin"),segSec=document.getElementById("segSec"),btnNow=document.getElementById("btnNow");
+  var dtReadable=document.getElementById("dtReadable"),dtSec=document.getElementById("dtSec"),dtMs=document.getElementById("dtMs"),dtHint=document.getElementById("dtHint");
+  var copyDtSec=document.getElementById("copyDtSec"),copyDtMs=document.getElementById("copyDtMs");
+  var WEEKS=["日","一","二","三","四","五","六"];
   function pad(n){ return n<10?"0"+n:String(n); }
-  var WEEKS = ["日","一","二","三","四","五","六"];
 
-  /* ── Live clock ── */
-  function tick() {
-    var d = new Date();
-    dtEl.textContent = d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+" "+
-      pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds());
-    tsSecEl.textContent = Math.floor(d.getTime()/1000);
-    tsMsEl.textContent = d.getTime();
-  }
-  tick(); setInterval(tick, 1000);
-
+  function tick(){ var d=new Date(); dtEl.textContent=d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+" "+pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds()); tsSecEl.textContent=Math.floor(d.getTime()/1000); tsMsEl.textContent=d.getTime(); }
+  tick(); setInterval(tick,1000);
   tsSecEl.addEventListener("click",function(){ copy(String(Math.floor(Date.now()/1000))); });
   tsMsEl.addEventListener("click",function(){ copy(String(Date.now())); });
 
-  /* ── Timestamp → Datetime ── */
-  function tsToDt() {
-    var v = tsInput.value.trim(); if(!v) { resetTs(); return; }
-    var n = parseInt(v, 10);
-    if (isNaN(n)) { tsResult.textContent = "无效时间戳"; tsResult.className = "val empty"; copyTs.style.display = "none"; return; }
-    var sec = n > 1e12 ? n / 1000 : n;
-    var d = new Date(sec * 1000);
-    if (isNaN(d.getTime())) { tsResult.textContent = "转换失败"; tsResult.className = "val empty"; copyTs.style.display = "none"; return; }
-    var txt = d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+" "+
-              pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds())+" (周"+WEEKS[d.getDay()]+")";
-    tsResult.textContent = txt; tsResult.className = "val";
-    tsResult.setAttribute("data-text", txt);
-    copyTs.style.display = "";
-    tsHint.textContent = (n > 1e12 ? "识别为毫秒" : "识别为秒"); tsHint.className = "hint";
+  function tsToDt(){
+    var v=tsInput.value.trim(); if(!v){ tsResult.textContent="等待输入…"; tsResult.className="val empty"; copyTs.style.display="none"; tsHint.textContent="自动识别秒/毫秒"; tsHint.className="hint"; return; }
+    var n=parseInt(v,10);
+    if(isNaN(n)){ tsResult.textContent="无效时间戳"; tsResult.className="val empty"; copyTs.style.display="none"; return; }
+    var sec=n>1e12?n/1000:n, d=new Date(sec*1000);
+    if(isNaN(d.getTime())){ tsResult.textContent="转换失败"; tsResult.className="val empty"; copyTs.style.display="none"; return; }
+    var txt=d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+" "+pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds())+" (周"+WEEKS[d.getDay()]+")";
+    tsResult.textContent=txt; tsResult.className="val"; tsResult.setAttribute("data-text",txt); copyTs.style.display="";
+    tsHint.textContent=(n>1e12?"识别为毫秒":"识别为秒"); tsHint.className="hint";
   }
-  function resetTs(){ tsResult.textContent = "等待输入…"; tsResult.className = "val empty"; copyTs.style.display = "none"; tsHint.textContent = "自动识别秒/毫秒"; tsHint.className = "hint"; }
+  document.getElementById("btnConvert").addEventListener("click",tsToDt);
+  tsInput.addEventListener("input",tsToDt);
+  copyTs.addEventListener("click",function(){ copy(tsResult.getAttribute("data-text")); });
 
-  document.getElementById("btnConvert").addEventListener("click", tsToDt);
-  tsInput.addEventListener("input", tsToDt);
+  function fillNow(){ var d=new Date(); segYear.value=d.getFullYear(); segMonth.value=pad(d.getMonth()+1); segDay.value=pad(d.getDate()); segHour.value=pad(d.getHours()); segMin.value=pad(d.getMinutes()); segSec.value=pad(d.getSeconds()); segToTs(); }
+  btnNow.addEventListener("click",fillNow);
 
-  copyTs.addEventListener("click", function(){ copy(tsResult.getAttribute("data-text")); });
-
-  /* ── Segmented → Timestamp ── */
-  function fillNow() {
-    var d = new Date();
-    segYear.value  = d.getFullYear();
-    segMonth.value = pad(d.getMonth()+1);
-    segDay.value   = pad(d.getDate());
-    segHour.value  = pad(d.getHours());
-    segMin.value   = pad(d.getMinutes());
-    segSec.value   = pad(d.getSeconds());
-    segToTs();
+  function segToTs(){
+    var y=parseInt(segYear.value)||0,m=parseInt(segMonth.value)||1,d=parseInt(segDay.value)||1,h=parseInt(segHour.value)||0,mi=parseInt(segMin.value)||0,s=parseInt(segSec.value)||0;
+    if(!segYear.value&&!segMonth.value&&!segDay.value&&!segHour.value&&!segMin.value&&!segSec.value){ dtReadable.textContent="--"; dtSec.textContent="--"; dtMs.textContent="--"; copyDtSec.style.display="none"; copyDtMs.style.display="none"; dtHint.textContent="选择或输入日期，自动转换"; dtHint.className="hint"; return; }
+    if(y<1970||y>3000){ dtSec.textContent="年份 1970~3000"; dtSec.style.color="#f38ba8"; return; }
+    if(m<1||m>12){ dtSec.textContent="月份 1~12"; dtSec.style.color="#f38ba8"; return; }
+    if(d<1||d>31){ dtSec.textContent="日期 1~31"; dtSec.style.color="#f38ba8"; return; }
+    if(h<0||h>23){ dtSec.textContent="小时 0~23"; dtSec.style.color="#f38ba8"; return; }
+    if(mi<0||mi>59){ dtSec.textContent="分钟 0~59"; dtSec.style.color="#f38ba8"; return; }
+    if(s<0||s>59){ dtSec.textContent="秒 0~59"; dtSec.style.color="#f38ba8"; return; }
+    var date=new Date(y,m-1,d,h,mi,s);
+    if(isNaN(date.getTime())||date.getMonth()!==m-1){ dtSec.textContent="日期无效（如2月30日）"; dtSec.style.color="#f38ba8"; return; }
+    var sec=Math.floor(date.getTime()/1000),ms=date.getTime();
+    dtReadable.textContent=y+"-"+pad(m)+"-"+pad(d)+" "+pad(h)+":"+pad(mi)+":"+pad(s)+" (周"+WEEKS[date.getDay()]+")";
+    dtReadable.setAttribute("data-text",dtReadable.textContent);
+    dtSec.textContent=sec; dtSec.style.color=""; dtSec.setAttribute("data-text",sec);
+    dtMs.textContent=ms; dtMs.style.color=""; dtMs.setAttribute("data-text",ms);
+    copyDtSec.style.display=""; copyDtMs.style.display="";
+    dtHint.textContent=""; dtHint.className="hint";
   }
-
-  btnNow.addEventListener("click", fillNow);
-
-  function segToTs() {
-    var y = parseInt(segYear.value)  || 0;
-    var m = parseInt(segMonth.value) || 1;
-    var d = parseInt(segDay.value)   || 1;
-    var h = parseInt(segHour.value)  || 0;
-    var mi= parseInt(segMin.value)   || 0;
-    var s = parseInt(segSec.value)   || 0;
-
-    /* check if all empty */
-    if (!segYear.value && !segMonth.value && !segDay.value &&
-        !segHour.value && !segMin.value && !segSec.value) {
-      resetDt(); return;
-    }
-
-    /* validate ranges */
-    if (y < 1970 || y > 3000) { setDtErr("年份范围 1970~3000"); return; }
-    if (m < 1 || m > 12)     { setDtErr("月份范围 1~12"); return; }
-    if (d < 1 || d > 31)     { setDtErr("日期范围 1~31"); return; }
-    if (h < 0 || h > 23)     { setDtErr("小时范围 0~23"); return; }
-    if (mi < 0 || mi > 59)   { setDtErr("分钟范围 0~59"); return; }
-    if (s < 0 || s > 59)     { setDtErr("秒范围 0~59"); return; }
-
-    var date = new Date(y, m-1, d, h, mi, s);
-    if (isNaN(date.getTime()) || date.getMonth() !== m-1) {
-      setDtErr("日期无效（如 2月30日 不存在）"); return;
-    }
-
-    var sec = Math.floor(date.getTime()/1000);
-    var ms  = date.getTime();
-    var readable = y+"-"+pad(m)+"-"+pad(d)+" "+pad(h)+":"+pad(mi)+":"+pad(s)+" (周"+WEEKS[date.getDay()]+")";
-
-    dtReadable.textContent = readable;
-    dtReadable.setAttribute("data-text", readable);
-    dtSec.textContent = sec; dtSec.style.color = "";
-    dtSec.setAttribute("data-text", sec);
-    dtMs.textContent = ms; dtMs.style.color = "";
-    dtMs.setAttribute("data-text", ms);
-    copyDtSec.style.display = ""; copyDtMs.style.display = "";
-    dtHint.textContent = ""; dtHint.className = "hint";
-  }
-
-  function setDtErr(msg) {
-    dtSec.textContent = msg; dtSec.style.color = "#f38ba8";
-    dtMs.textContent = ""; dtMs.style.color = "";
-    copyDtSec.style.display = "none"; copyDtMs.style.display = "none";
-    dtReadable.textContent = msh;
-    dtHint.textContent = msg; dtHint.className = "hint error";
-  }
-
-  function resetDt() {
-    dtReadable.textContent = "--";
-    dtSec.textContent = "--"; dtSec.style.color = "";
-    dtMs.textContent = "--"; dtMs.style.color = "";
-    copyDtSec.style.display = "none"; copyDtMs.style.display = "none";
-    dtHint.textContent = "选择或输入日期，自动转换"; dtHint.className = "hint";
-  }
-
-  /* auto-convert on input */
   [segYear,segMonth,segDay,segHour,segMin,segSec].forEach(function(el){
-    el.addEventListener("input", segToTs);
-    /* allow tab between fields */
-    el.addEventListener("keydown", function(e){
-      if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-        e.preventDefault();
-        var v = parseInt(el.value) || 0;
-        el.value = pad(e.key === "ArrowUp" ? v+1 : v-1);
-        segToTs();
-      }
-    });
+    el.addEventListener("input",segToTs);
+    el.addEventListener("keydown",function(e){ if(e.key==="ArrowUp"||e.key==="ArrowDown"){ e.preventDefault(); el.value=pad((parseInt(el.value)||0)+(e.key==="ArrowUp"?1:-1)); segToTs(); }});
   });
+  copyDtSec.addEventListener("click",function(){ copy(dtSec.getAttribute("data-text")); });
+  copyDtMs.addEventListener("click",function(){ copy(dtMs.getAttribute("data-text")); });
+  dtReadable.addEventListener("click",function(){ copy(dtReadable.getAttribute("data-text")); });
+  dtReadable.style.cursor="pointer";
 
-  copyDtSec.addEventListener("click", function(){ copy(dtSec.getAttribute("data-text")); });
-  copyDtMs.addEventListener("click",  function(){ copy(dtMs.getAttribute("data-text")); });
-  dtReadable.addEventListener("click", function(){ copy(dtReadable.getAttribute("data-text")); });
-  dtReadable.style.cursor = "pointer";
-
-  /* ── Copy ── */
-  function copy(text) {
-    navigator.clipboard.writeText(text).then(function(){ showToast("已复制"); });
-  }
-  var tmr;
-  function showToast(msg) {
-    clearTimeout(tmr);
-    toastEl.textContent = msg; toastEl.classList.add("show");
-    tmr = setTimeout(function(){ toastEl.classList.remove("show"); }, 1500);
-  }
-
-  /* ── Theme ── */
-  var saved = localStorage.getItem("theme") || "dark";
-  document.documentElement.setAttribute("data-theme", saved);
-  document.getElementById("themeBtn").textContent = saved === "light" ? "☀️" : "🌙";
-
-  window.toggleTheme = function() {
-    var cur = document.documentElement.getAttribute("data-theme");
-    var next = cur === "light" ? "dark" : "light";
-    document.documentElement.setAttribute("data-theme", next);
-    localStorage.setItem("theme", next);
-    document.getElementById("themeBtn").textContent = next === "light" ? "☀️" : "🌙";
+  /* Theme */
+  var saved=localStorage.getItem("theme")||"dark";
+  document.documentElement.setAttribute("data-theme",saved);
+  document.getElementById("themeBtn").textContent=saved==="light"?"☀️ 浅色模式":"🌙 深色模式";
+  window.toggleTheme=function(){
+    var n=document.documentElement.getAttribute("data-theme")==="light"?"dark":"light";
+    document.documentElement.setAttribute("data-theme",n);
+    localStorage.setItem("theme",n);
+    document.getElementById("themeBtn").textContent=n==="light"?"☀️ 浅色模式":"🌙 深色模式";
   };
 
-  /* init with now */
+  var tmr;
+  function toast(msg){ clearTimeout(tmr); toastEl.textContent=msg; toastEl.classList.add("show"); tmr=setTimeout(function(){toastEl.classList.remove("show")},1500); }
+  function copy(text){ navigator.clipboard.writeText(text).then(function(){ toast("已复制"); }); }
+
   fillNow();
 })();
 </script>
