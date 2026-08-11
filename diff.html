@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Text Diff</title>
+<style>
+:root{--bg:#0f0f1a;--surface:#161625;--border:#2a2a40;--text:#e4e4ed;--text-dim:#787890;--accent:#7c8bff;--accent-soft:rgba(124,139,255,0.12);--green:#5ecb8c;--amber:#f0a060;--rose:#f07090;--radius:10px;--radius-sm:6px;--font-mono:"SF Mono","Fira Code","JetBrains Mono",Consolas,monospace;--font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+[data-theme="light"]{--bg:#fafafe;--surface:#fff;--border:#e4e4ec;--text:#1a1a28;--text-dim:#8c8ca0;--accent:#5b6cf0;--accent-soft:rgba(91,108,240,0.08);--green:#3b9a60;--amber:#d68040;--rose:#d05068}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--font-sans);min-height:100vh;display:flex}
+.sidebar{width:200px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:24px 0;min-height:100vh}
+.sidebar-brand{padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:8px}
+.sidebar-brand .name{font-size:20px;font-weight:700;color:var(--accent)}
+.sidebar-brand .sub{font-size:11px;color:var(--text-dim);margin-top:2px}
+.sidebar-nav{flex:1;padding:8px 0}
+.sidebar-nav a{display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--text-dim);text-decoration:none;font-size:14px;transition:all .12s;border-left:3px solid transparent}
+.sidebar-nav a:hover{color:var(--text);background:rgba(124,139,255,.06)}
+.sidebar-nav a.active{color:var(--accent);border-left-color:var(--accent);background:var(--accent-soft)}
+.sidebar-nav a .icon{font-size:18px;width:24px;text-align:center;flex-shrink:0}
+.sidebar-bottom{padding:16px 20px;border-top:1px solid var(--border)}
+.sidebar-bottom button{width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);cursor:pointer;font-size:13px;font-family:var(--font-sans);transition:all .12s}
+.sidebar-bottom button:hover{border-color:var(--accent)}
+.main-content{flex:1;overflow-y:auto;min-width:0;display:flex;flex-direction:column}
+
+/* top bar */
+.toolbar{display:flex;align-items:center;gap:12px;padding:16px 24px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0}
+.toolbar .sep{flex:1}
+.btn{padding:7px 16px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);font-size:13px;cursor:pointer;transition:all .15s;font-family:var(--font-sans);white-space:nowrap}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.btn svg{width:14px;height:14px}
+.stat{font-size:12px;color:var(--text-dim);font-family:var(--font-mono);white-space:nowrap}
+
+/* editors */
+.editors{display:flex;flex:1;min-height:0}
+.edit-panel{flex:1;display:flex;flex-direction:column;min-width:0}
+.edit-panel+.edit-panel{border-left:1px solid var(--border)}
+.panel-head{padding:8px 14px;border-bottom:1px solid var(--border);background:var(--surface);font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;font-weight:600;flex-shrink:0;display:flex;align-items:center;gap:6px}
+.panel-head .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.panel-head .dot.left{background:var(--amber)}
+.panel-head .dot.right{background:var(--green)}
+textarea{flex:1;background:transparent;color:var(--text);border:none;outline:none;resize:none;font-family:var(--font-mono);font-size:13px;line-height:1.7;padding:12px 14px;tab-size:2;width:100%}
+textarea::placeholder{color:var(--text-dim)}
+
+/* diff output */
+.diff-output{flex:1;overflow-y:auto;font-family:var(--font-mono);font-size:13px;line-height:1.7;min-height:0}
+.diff-line{display:flex;min-height:24px;border-bottom:1px solid rgba(120,120,144,.06)}
+.diff-line .ln{width:48px;flex-shrink:0;text-align:right;padding:2px 10px 2px 4px;color:var(--text-dim);font-size:11px;user-select:none;background:var(--surface)}
+.diff-line .content{padding:2px 14px;white-space:pre-wrap;word-break:break-all;flex:1}
+.diff-line.added{background:rgba(94,203,140,.1)}
+.diff-line.added .content{color:var(--green)}
+.diff-line.added .content::before{content:"+ ";color:var(--green);font-weight:700}
+.diff-line.removed{background:rgba(240,112,144,.1)}
+.diff-line.removed .content{color:var(--rose)}
+.diff-line.removed .content::before{content:"- ";color:var(--rose);font-weight:700}
+.diff-line.unchanged .content{color:var(--text-dim)}
+.diff-line.unchanged .content::before{content:"  "}
+
+select{padding:6px 10px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;font-family:var(--font-sans);outline:none}
+select:focus{border-color:var(--accent)}
+
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#585b70;border-radius:3px}
+.toast{position:fixed;top:20px;right:20px;background:var(--green);color:var(--bg);padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;opacity:0;transform:translateY(-10px);transition:all .25s;pointer-events:none;z-index:100}
+.toast.show{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand"><div class="name">Diff</div><div class="sub">文本差异比对</div></div>
+  <nav class="sidebar-nav">
+    <a href="index.html"><span class="icon">🏠</span> 首页</a>
+    <a href="json-formatter.html"><span class="icon">{ }</span> JSON</a>
+    <a href="timestamp.html"><span class="icon">⏱</span> Timestamp</a>
+    <a href="cron.html"><span class="icon">🕐</span> Cron</a>
+    <a href="password.html"><span class="icon">🔑</span> Password</a>
+    <a href="regex.html"><span class="icon">⚡</span> Regex</a>
+    <a href="diff.html" class="active"><span class="icon">≠</span> Diff</a>
+    <a href="color.html"><span class="icon">🎨</span> Color</a>
+  </nav>
+  <div class="sidebar-bottom"><button onclick="toggleTheme()" id="themeBtn">🌙 深色模式</button></div>
+</aside>
+<div class="main-content">
+  <div class="toolbar">
+    <button class="btn primary" id="btnDiff">比对差异</button>
+    <button class="btn" id="btnSwap" title="交换左右">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7 16 1 10 7 4"/><polyline points="17 8 23 14 17 20"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+    </button>
+    <button class="btn" id="btnClear">清空</button>
+    <span class="sep"></span>
+    <select id="diffMode">
+      <option value="line">按行比对</option>
+      <option value="word">按词比对</option>
+    </select>
+    <span class="stat" id="diffStat"></span>
+  </div>
+  <div class="editors">
+    <div class="edit-panel">
+      <div class="panel-head"><span class="dot left"></span> 原始文本 (A)</div>
+      <textarea id="textA" placeholder="粘贴原始文本..."></textarea>
+    </div>
+    <div class="edit-panel">
+      <div class="panel-head"><span class="dot right"></span> 修改后 (B)</div>
+      <textarea id="textB" placeholder="粘贴修改后文本..."></textarea>
+    </div>
+  </div>
+  <div class="diff-output" id="diffOutput" style="display:none"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  var textA=document.getElementById("textA"),textB=document.getElementById("textB");
+  var diffOutput=document.getElementById("diffOutput"),diffStat=document.getElementById("diffStat"),diffMode=document.getElementById("diffMode");
+  var toastEl=document.getElementById("toast");
+
+  function pad(n){return n<10?"0"+n:n}
+
+  /* simple LCS-based line diff */
+  function lcs(a,b){
+    var m=a.length,n=b.length,dp=[],i,j;
+    for(i=0;i<=m;i++){dp[i]=[];for(j=0;j<=n;j++)dp[i][j]=0}
+    for(i=1;i<=m;i++)for(j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);
+    var result=[],x=m,y=n;
+    while(x>0||y>0){
+      if(x>0&&y>0&&a[x-1]===b[y-1]){result.unshift({type:"same",a:x-1,b:y-1,txt:a[x-1]});x--;y--}
+      else if(y>0&&(x===0||dp[x][y-1]>=dp[x-1][y])){result.unshift({type:"add",b:y-1,txt:b[y-1]});y--}
+      else{result.unshift({type:"rem",a:x-1,txt:a[x-1]});x--}
+    }
+    return result;
+  }
+
+  function doDiff(){
+    var a=textA.value,b=textB.value;
+    if(!a&&!b){diffOutput.style.display="none";diffStat.textContent="";return}
+    diffOutput.style.display="";
+
+    var mode=diffMode.value;
+    var aLines=a.split("\n"),bLines=b.split("\n");
+    var result=lcs(aLines,bLines);
+
+    var html="",la=1,lb=1,adds=0,rems=0;
+    result.forEach(function(r){
+      if(r.type==="same"){
+        html+='<div class="diff-line unchanged"><span class="ln">'+la+'</span><span class="content">'+esc(r.txt)+'</span></div>';
+        la++;lb++;
+      }else if(r.type==="rem"){
+        html+='<div class="diff-line removed"><span class="ln">'+la+'</span><span class="content">'+esc(r.txt)+'</span></div>';
+        la++;rems++;
+      }else{
+        html+='<div class="diff-line added"><span class="ln">'+lb+'</span><span class="content">'+esc(r.txt)+'</span></div>';
+        lb++;adds++;
+      }
+    });
+    diffOutput.innerHTML=html;
+    diffStat.innerHTML='<span style="color:var(--green)">+'+adds+'</span> <span style="color:var(--rose)">-'+rems+'</span>';
+  }
+
+  document.getElementById("btnDiff").addEventListener("click",doDiff);
+  textA.addEventListener("input",function(){clearTimeout(textA._t);textA._t=setTimeout(doDiff,400)});
+  textB.addEventListener("input",function(){clearTimeout(textB._t);textB._t=setTimeout(doDiff,400)});
+  diffMode.addEventListener("change",doDiff);
+
+  document.getElementById("btnSwap").addEventListener("click",function(){
+    var tmp=textA.value;textA.value=textB.value;textB.value=tmp;doDiff();
+  });
+  document.getElementById("btnClear").addEventListener("click",function(){
+    textA.value="";textB.value="";diffOutput.style.display="none";diffStat.textContent="";
+  });
+
+  function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+  /* Theme */
+  var saved=localStorage.getItem("theme")||"dark";
+  document.documentElement.setAttribute("data-theme",saved);
+  document.getElementById("themeBtn").textContent=saved==="light"?"☀️ 浅色模式":"🌙 深色模式";
+  window.toggleTheme=function(){
+    var n=document.documentElement.getAttribute("data-theme")==="light"?"dark":"light";
+    document.documentElement.setAttribute("data-theme",n);
+    localStorage.setItem("theme",n);
+    document.getElementById("themeBtn").textContent=n==="light"?"☀️ 浅色模式":"🌙 深色模式";
+  };
+  var tmr;function toast(m){clearTimeout(tmr);toastEl.textContent=m;toastEl.classList.add("show");tmr=setTimeout(function(){toastEl.classList.remove("show")},1500)}
+})();
+</script>
+</body>
+</html>
