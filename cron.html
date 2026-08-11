@@ -94,7 +94,7 @@
 
   /* ── Reverse ── */
   .reverse-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 6px;
   }
   .rev-item {
     padding: 8px 12px; background: var(--bg); border: 1px solid var(--border);
