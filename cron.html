@@ -9,8 +9,7 @@
     --bg: #1e1e2e; --panel: #252536; --border: #3a3a5c;
     --text: #cdd6f4; --text-dim: #6c7086;
     --accent: #89b4fa; --success: #a6e3a1; --warn: #fab387; --error: #f38ba8;
-    --hover: #313244; --scrollbar-thumb: #585b70;
-    --radius: 8px; --radius-sm: 4px;
+    --hover: #313244; --radius: 8px; --radius-sm: 4px;
     --font-mono: "SF Mono","Fira Code","Cascadia Code","JetBrains Mono",Consolas,monospace;
     --font-sans: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
   }
@@ -20,56 +19,13 @@
     font-family: var(--font-sans); min-height: 100vh;
     display: flex; flex-direction: column; align-items: center;
   }
-  .container { width: 100%; max-width: 720px; padding: 40px 20px; }
+  .container { width: 100%; max-width: 780px; padding: 32px 20px 60px; }
 
-  .header { text-align: center; margin-bottom: 28px; }
-  .header h1 { font-size: 24px; color: var(--accent); }
-  .header .sub { color: var(--text-dim); font-size: 13px; margin-top: 4px; font-family: var(--font-mono); }
-  .header .sub span { color: var(--warn); }
+  .header { text-align: center; margin-bottom: 24px; }
+  .header h1 { font-size: 22px; color: var(--accent); }
+  .header .sub { color: var(--text-dim); font-size: 12px; margin-top: 4px; }
 
-  /* input */
-  .input-row {
-    display: flex; gap: 10px; margin-bottom: 12px;
-  }
-  input {
-    flex: 1; padding: 12px 16px;
-    background: var(--panel); border: 1px solid var(--border);
-    border-radius: var(--radius); color: var(--text);
-    font-family: var(--font-mono); font-size: 18px;
-    letter-spacing: 1px; outline: none;
-    transition: border-color 0.15s;
-  }
-  input:focus { border-color: var(--accent); }
-  input.error { border-color: var(--error); }
-
-  .btn {
-    padding: 10px 18px; border: 1px solid var(--border);
-    border-radius: var(--radius-sm); background: var(--panel);
-    color: var(--text); font-size: 13px; cursor: pointer;
-    transition: all 0.15s; font-family: var(--font-sans); white-space: nowrap;
-  }
-  .btn:hover { background: var(--hover); border-color: var(--accent); }
-  .btn.primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
-
-  /* presets */
-  .presets {
-    display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px;
-  }
-  .preset {
-    padding: 4px 12px; background: var(--panel); border: 1px solid var(--border);
-    border-radius: 12px; font-size: 12px; font-family: var(--font-mono);
-    color: var(--text-dim); cursor: pointer; transition: all 0.12s;
-  }
-  .preset:hover { border-color: var(--accent); color: var(--text); }
-
-  /* error */
-  .error-msg {
-    color: var(--error); font-size: 13px; padding: 8px 0;
-    display: none;
-  }
-  .error-msg.show { display: block; }
-
-  /* explain card */
+  /* card */
   .card {
     background: var(--panel); border: 1px solid var(--border);
     border-radius: var(--radius); padding: 20px; margin-bottom: 16px;
@@ -77,56 +33,97 @@
   .card-title {
     font-size: 12px; color: var(--text-dim); text-transform: uppercase;
     letter-spacing: 1px; font-weight: 600; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-title::before { content: ""; width: 3px; height: 14px; background: var(--accent); border-radius: 2px; }
+
+  /* ── Visual Selector ── */
+  .field-row {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .field-label {
+    width: 36px; font-size: 12px; color: var(--text-dim);
+    text-align: right; flex-shrink: 0;
+  }
+  .options {
+    display: flex; flex-wrap: wrap; gap: 4px;
+  }
+  .opt {
+    padding: 3px 10px; border: 1px solid var(--border);
+    border-radius: 14px; font-size: 11px; font-family: var(--font-mono);
+    color: var(--text-dim); cursor: pointer; transition: all 0.12s;
+    background: var(--bg); white-space: nowrap;
+  }
+  .opt:hover { border-color: var(--accent); color: var(--text); }
+  .opt.selected { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .opt-custom {
+    font-family: var(--font-sans); font-style: italic;
+    padding: 3px 8px; min-width: 60px;
   }
 
-  .explain-grid {
-    display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
-  }
-  .explain-item {
+  .expr-preview {
+    margin-top: 12px; padding: 12px 16px;
     background: var(--bg); border-radius: var(--radius-sm);
-    padding: 10px; text-align: center;
-  }
-  .explain-item .field { font-size: 10px; color: var(--text-dim); text-transform: uppercase; }
-  .explain-item .val { font-family: var(--font-mono); font-size: 18px; color: var(--accent); font-weight: 600; margin: 4px 0; }
-  .explain-item .desc { font-size: 11px; color: var(--text-dim); line-height: 1.4; }
-
-  .human-read {
-    font-size: 15px; line-height: 1.6; padding: 12px 0;
-    color: var(--success);
-  }
-
-  /* next runs */
-  .next-list { list-style: none; }
-  .next-list li {
     display: flex; align-items: center; gap: 12px;
-    padding: 8px 12px; border-radius: var(--radius-sm);
-    font-family: var(--font-mono); font-size: 14px;
   }
-  .next-list li + li { border-top: 1px solid var(--border); }
-  .next-list li .idx {
-    width: 24px; height: 24px; border-radius: 50%;
-    background: var(--border); color: var(--text-dim);
-    font-size: 11px; display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
+  .expr-preview .expr {
+    font-family: var(--font-mono); font-size: 20px; letter-spacing: 1px;
+    color: var(--accent); flex: 1;
   }
-  .next-list li .idx.upcoming { background: var(--accent); color: var(--bg); }
-  .next-list li .ts {
-    color: var(--text-dim); font-size: 12px; margin-left: auto;
+  .expr-preview .human {
+    font-size: 13px; color: var(--text-dim);
   }
-  .copy-btn {
-    margin-left: auto; padding: 2px 10px; border: 1px solid var(--border);
-    border-radius: 3px; background: transparent; color: var(--text-dim);
-    font-size: 11px; cursor: pointer; font-family: var(--font-sans);
+  .copy-sm {
+    padding: 4px 12px; border: 1px solid var(--border); border-radius: 3px;
+    background: transparent; color: var(--text-dim); font-size: 12px;
+    cursor: pointer; font-family: var(--font-sans);
   }
-  .copy-btn:hover { background: var(--hover); color: var(--text); }
+  .copy-sm:hover { background: var(--hover); color: var(--text); }
 
-  .nav { margin-top: 24px; text-align: center; }
+  /* ── Reverse ── */
+  .reverse-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+  }
+  .rev-item {
+    padding: 8px 12px; background: var(--bg); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); cursor: pointer; transition: all 0.12s;
+    font-size: 13px; color: var(--text-dim);
+  }
+  .rev-item:hover { border-color: var(--accent); color: var(--text); background: var(--hover); }
+  .rev-item .rev-expr {
+    font-family: var(--font-mono); font-size: 11px; color: var(--accent); margin-top: 3px;
+  }
+
+  /* ── Run Times ── */
+  .run-section { display: flex; gap: 16px; }
+  .run-section .half { flex: 1; min-width: 0; }
+  .run-list {
+    list-style: none; font-family: var(--font-mono); font-size: 13px;
+  }
+  .run-list li {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 8px; border-radius: var(--radius-sm);
+  }
+  .run-list li + li { border-top: 1px solid var(--border); }
+  .run-list li .dot {
+    width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+  }
+  .run-list li .dot.past { background: var(--text-dim); }
+  .run-list li .dot.next { background: var(--success); }
+  .run-list li .ts {
+    color: var(--text-dim); font-size: 11px; margin-left: auto;
+  }
+  .no-data { color: var(--text-dim); font-size: 13px; padding: 8px; }
+
+  /* nav */
+  .nav { margin-top: 20px; text-align: center; }
   .nav a { color: var(--text-dim); font-size: 13px; text-decoration: none; margin: 0 10px; }
   .nav a:hover { color: var(--accent); }
 
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb { background: #585b70; border-radius: 3px; }
 
   .toast {
     position: fixed; top: 20px; right: 20px;
@@ -143,37 +140,39 @@
 <div class="container">
   <div class="header">
     <h1>Cron</h1>
-    <div class="sub">* <span>*</span> * * * *</div>
+    <div class="sub">表达式可视化构建 &amp; 解析</div>
   </div>
 
-  <div class="input-row">
-    <input type="text" id="cronInput" placeholder="*/5 * * * *" spellcheck="false">
-    <button class="btn primary" id="btnParse">解析</button>
+  <!-- Visual Selector -->
+  <div class="card">
+    <div class="card-title">可视化选择</div>
+    <div id="selector"></div>
+    <div class="expr-preview">
+      <span class="expr" id="exprPreview">* * * * *</span>
+      <span class="human" id="exprHuman">每分钟</span>
+      <button class="copy-sm" id="copyExpr">复制</button>
+    </div>
   </div>
 
-  <div class="presets" id="presets">
-    <span class="preset">* * * * *</span>
-    <span class="preset">*/5 * * * *</span>
-    <span class="preset">0 * * * *</span>
-    <span class="preset">0 9 * * 1-5</span>
-    <span class="preset">0 0 * * *</span>
-    <span class="preset">0 0 1 * *</span>
-    <span class="preset">30 2 * * 0</span>
+  <!-- Reverse Parse -->
+  <div class="card">
+    <div class="card-title">反解析（选你想要）</div>
+    <div class="reverse-grid" id="reverseGrid"></div>
   </div>
 
-  <div class="error-msg" id="errorMsg"></div>
-
-  <!-- explanation -->
-  <div class="card" id="explainCard" style="display:none">
-    <div class="card-title">每个字段含义</div>
-    <div class="explain-grid" id="explainGrid"></div>
-    <div class="human-read" id="humanRead"></div>
-  </div>
-
-  <!-- next runs -->
-  <div class="card" id="nextCard" style="display:none">
-    <div class="card-title">接下来执行时间</div>
-    <ul class="next-list" id="nextList"></ul>
+  <!-- Run Times -->
+  <div class="card">
+    <div class="card-title">最近 &amp; 下次执行时间</div>
+    <div class="run-section">
+      <div class="half">
+        <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px">最近 5 次</div>
+        <ul class="run-list" id="pastRuns"></ul>
+      </div>
+      <div class="half">
+        <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px">接下来 5 次</div>
+        <ul class="run-list" id="nextRuns"></ul>
+      </div>
+    </div>
   </div>
 
   <div class="nav">
@@ -182,129 +181,135 @@
     <a href="timestamp.html">Timestamp</a>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script>
 (function(){
-  var input     = document.getElementById("cronInput");
-  var errorMsg  = document.getElementById("errorMsg");
-  var explainCard = document.getElementById("explainCard");
-  var explainGrid = document.getElementById("explainGrid");
-  var humanRead = document.getElementById("humanRead");
-  var nextCard  = document.getElementById("nextCard");
-  var nextList  = document.getElementById("nextList");
-  var toastEl   = document.getElementById("toast");
+  var WEEKS = ["日","一","二","三","四","五","六"];
+  var pad = function(n){ return n<10?"0"+n:n; };
 
+  /* ── Field options ── */
+  var FIELD_OPTIONS = [
+    /* minute */  ["*","*/5","*/10","*/15","*/30","0","15","30","45"],
+    /* hour */    ["*","*/2","*/3","*/6","0","6","8","9","12","18","22"],
+    /* day */     ["*","*/2","1","15","L"],
+    /* month */   ["*","1","3","6","9","12"],
+    /* weekday */ ["*","1-5","0","1","6","6,0"],
+  ];
   var FIELD_NAMES = ["分钟","小时","日","月","星期"];
-  var MONTHS = ["","1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"];
-  var WEEKS  = ["日","一","二","三","四","五","六"];
+  var FIELD_RANGE = [[0,59],[0,23],[1,31],[1,12],[0,6]];
+
+  var currentExpr = ["*","*","*","*","*"];
+  var manualInput = false;
 
   /* ── Validation ── */
   function validateField(v, min, max) {
     if (v === "*") return true;
-    /* step: */5 or 1/5 */
+    if (v === "L") return true; /* last day */
     if (/^\*\/\d+$/.test(v)) { var s = parseInt(v.split("/")[1]); return s >= 1 && s <= max; }
     if (/^\d+\/\d+$/.test(v)) { var p = v.split("/"); var b = parseInt(p[0]), s = parseInt(p[1]); return b >= min && b <= max && s >= 1; }
-    /* range: 1-5 */
     if (/^\d+-\d+$/.test(v)) { var r = v.split("-"); return parseInt(r[0]) >= min && parseInt(r[1]) <= max; }
-    /* list: 1,3,5 */
     if (/^[\d,]+$/.test(v)) return v.split(",").every(function(x){ var n = parseInt(x); return n >= min && n <= max; });
-    /* single */
     if (/^\d+$/.test(v)) { var n = parseInt(v); return n >= min && n <= max; }
     return false;
   }
 
-  function parseCron(expr) {
-    var parts = expr.trim().split(/\s+/);
-    if (parts.length !== 5) return { error: "需要 5 个字段，当前 " + parts.length + " 个" };
-    var ranges = [[0,59],[0,23],[1,31],[1,12],[0,6]];
+  function validExpr(parts) {
+    if (parts.length !== 5) return false;
     for (var i = 0; i < 5; i++) {
-      if (!validateField(parts[i], ranges[i][0], ranges[i][1]))
-        return { error: "字段 " + (i+1) + " (" + FIELD_NAMES[i] + ") 无效: " + parts[i] };
+      var range = FIELD_RANGE[i];
+      if (!validateField(parts[i], range[0], range[1]) && parts[i] !== "L") return false;
     }
-    return { error: null, parts: parts };
+    return true;
   }
 
   /* ── Human readable ── */
-  function explainField(v, fieldIdx) {
-    if (v === "*") {
-      if (fieldIdx === 0) return "每分钟";
-      if (fieldIdx === 1) return "每小时";
-      if (fieldIdx === 2) return "每天";
-      if (fieldIdx === 3) return "每月";
-      if (fieldIdx === 4) return "每周每天";
-    }
-    if (/^\*\/\d+$/.test(v)) { var s = v.split("/")[1]; return "每" + s + "单位"; }
-    if (/^\d+\/\d+$/.test(v)) { var p = v.split("/"); return "从 " + p[0] + " 开始每 " + p[1] + " 单位"; }
-    if (/^\d+-\d+$/.test(v)) { var r = v.split("-"); return r[0] + " 到 " + r[1]; }
-    if (/^[\d,]+$/.test(v)) return v;
-    return v;
-  }
-
   function humanSentence(parts) {
     var s = [];
-    /* minute */
-    if (parts[0] === "*") s.push("每分钟");
-    else if (/^\*\/\d+$/.test(parts[0])) s.push("每 " + parts[0].split("/")[1] + " 分钟");
-    else s.push("第 " + parts[0] + " 分");
+    var m = parts[0], h = parts[1], d = parts[2], mo = parts[3], w = parts[4];
 
-    /* hour */
-    if (parts[1] === "*") s.push("每小时");
-    else s.push("在 " + parts[1] + " 点");
+    if (m === "*") s.push("每分钟");
+    else if (/^\*\/\d+$/.test(m)) s.push("每"+m.split("/")[1]+"分钟");
+    else s.push("第"+m+"分");
 
-    /* day */
-    if (parts[2] === "*") { /* skip */ }
-    else if (/^\*\/\d+$/.test(parts[2])) s.push("每 " + parts[2].split("/")[1] + " 天");
-    else s.push("在 " + parts[2] + " 号");
+    if (h === "*") s.push("每小时");
+    else if (/^\*\/\d+$/.test(h)) s.push("每"+h.split("/")[1]+"小时");
+    else s.push(h+"点");
 
-    /* month */
-    if (parts[3] === "*") { /* skip */ }
-    else s.push("在 " + parts[3] + " 月");
-
-    /* weekday */
-    if (parts[4] === "*") { /* skip */ }
-    else if (/^\d+$/.test(parts[4])) s.push("星期" + WEEKS[parseInt(parts[4])]);
-    else if (/^\d+-\d+$/.test(parts[4])) {
-      var r = parts[4].split("-");
-      s.push("星期" + WEEKS[parseInt(r[0])] + " 到 " + WEEKS[parseInt(r[1])]);
-    } else s.push(parts[4]);
-
+    if (d !== "*") {
+      if (d === "L") s.push("最后一天");
+      else if (/^\*\/\d+$/.test(d)) s.push("每"+d.split("/")[1]+"天");
+      else s.push(d+"号");
+    }
+    if (mo !== "*") s.push(mo+"月");
+    if (w !== "*") {
+      if (w === "1-5") s.push("工作日");
+      else if (w === "6,0" || w === "0,6") s.push("周末");
+      else if (/^\d+$/.test(w)) s.push("周"+WEEKS[parseInt(w)]);
+      else s.push(w);
+    }
     return s.join("，");
   }
 
-  /* ── Next runs ── */
-  function getNextRuns(parts, count) {
-    var results = [];
-    var now = new Date();
-    now.setSeconds(0, 0);
-    var maxIter = 366 * 24 * 60;
-    var iter = 0;
-
-    while (results.length < count && iter < maxIter) {
-      now.setMinutes(now.getMinutes() + 1);
-      iter++;
-      var m = now.getMinutes(), h = now.getHours(),
-          d = now.getDate(), mo = now.getMonth() + 1,
-          w = now.getDay();
-
-      if (!matchField(parts[0], m, 0, 59)) continue;
-      if (!matchField(parts[1], h, 0, 23)) continue;
-      if (!matchField(parts[2], d, 1, 31)) continue;
-      if (!matchField(parts[3], mo, 1, 12)) continue;
-      if (!matchField(parts[4], w, 0, 6)) continue;
-
-      results.push(new Date(now));
+  /* ── Build selector UI ── */
+  function buildSelector() {
+    var html = "";
+    var labels = ["分","时","日","月","周"];
+    for (var i = 0; i < 5; i++) {
+      var opts = FIELD_OPTIONS[i];
+      html += '<div class="field-row">';
+      html += '<span class="field-label">'+labels[i]+'</span>';
+      html += '<div class="options">';
+      for (var j = 0; j < opts.length; j++) {
+        var sel = currentExpr[i] === opts[j] ? " selected" : "";
+        html += '<span class="opt'+sel+'" data-field="'+i+'" data-val="'+opts[j]+'">'+opts[j]+'</span>';
+      }
+      /* custom input per field */
+      html += '<input class="opt opt-custom" data-field="'+i+'" placeholder="自定义" value="'+(FIELD_OPTIONS[i].indexOf(currentExpr[i])===-1&&currentExpr[i]!=="*"?currentExpr[i]:"")+'" style="width:70px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:11px;padding:3px 8px;border-radius:14px;outline:none">';
+      html += '</div></div>';
     }
-    return results;
+    document.getElementById("selector").innerHTML = html;
+    bindSelectorEvents();
   }
 
-  function matchField(expr, val, min, max) {
+  function bindSelectorEvents() {
+    /* button clicks */
+    document.querySelectorAll("#selector .opt").forEach(function(el){
+      if (el.classList.contains("opt-custom")) return;
+      el.addEventListener("click", function(){
+        var field = parseInt(this.getAttribute("data-field"));
+        var val = this.getAttribute("data-val");
+        currentExpr[field] = val;
+        updateAll();
+      });
+    });
+    /* custom inputs */
+    document.querySelectorAll("#selector .opt-custom").forEach(function(input){
+      input.addEventListener("input", function(){
+        var field = parseInt(this.getAttribute("data-field"));
+        currentExpr[field] = this.value.trim() || "*";
+        updateAll();
+      });
+    });
+  }
+
+  /* ── Update everything ── */
+  function updateAll() {
+    var expr = currentExpr.join(" ");
+    document.getElementById("exprPreview").textContent = expr;
+    document.getElementById("exprHuman").textContent = humanSentence(currentExpr);
+    buildSelector();
+    renderRuns();
+  }
+
+  /* ── Match field ── */
+  function matchField(expr, val) {
     if (expr === "*") return true;
+    if (expr === "L") return false; /* handled separately */
     if (/^\*\/\d+$/.test(expr)) return val % parseInt(expr.split("/")[1]) === 0;
     if (/^\d+\/\d+$/.test(expr)) {
-      var p = expr.split("/"); var base = parseInt(p[0]), step = parseInt(p[1]);
-      return val >= base && (val - base) % step === 0;
+      var p = expr.split("/"); var b = parseInt(p[0]), s = parseInt(p[1]);
+      return val >= b && (val - b) % s === 0;
     }
     if (/^\d+-\d+$/.test(expr)) {
       var r = expr.split("-"); return val >= parseInt(r[0]) && val <= parseInt(r[1]);
@@ -314,88 +319,130 @@
     return false;
   }
 
-  function pad(n){ return n<10?"0"+n:n; }
+  function matches(parts, d) {
+    return matchField(parts[0], d.getMinutes()) &&
+           matchField(parts[1], d.getHours()) &&
+           (parts[2] === "L" ? d.getDate() === new Date(d.getFullYear(), d.getMonth()+1, 0).getDate() : matchField(parts[2], d.getDate())) &&
+           matchField(parts[3], d.getMonth()+1) &&
+           matchField(parts[4], d.getDay());
+  }
 
-  /* ── Render ── */
-  function render() {
-    var expr = input.value.trim();
-    if (!expr) { hideAll(); return; }
+  /* ── Get past N + next N runs ── */
+  function getRuns(parts, pastCount, nextCount) {
+    var past = [], next = [];
+    var now = new Date();
 
-    var r = parseCron(expr);
-    if (r.error) {
-      errorMsg.textContent = r.error; errorMsg.classList.add("show");
-      explainCard.style.display = "none"; nextCard.style.display = "none";
-      input.classList.add("error");
+    /* past */
+    var cursor = new Date(now);
+    cursor.setSeconds(0,0);
+    cursor.setMinutes(cursor.getMinutes() - 1);
+    var iter = 0, maxIter = 525600; /* 1 year */
+    while (past.length < pastCount && iter < maxIter) {
+      cursor.setMinutes(cursor.getMinutes() - 1);
+      iter++;
+      if (matches(parts, cursor)) {
+        past.unshift(new Date(cursor));
+      }
+    }
+
+    /* next */
+    cursor = new Date(now);
+    cursor.setSeconds(0,0);
+    iter = 0;
+    while (next.length < nextCount && iter < maxIter) {
+      cursor.setMinutes(cursor.getMinutes() + 1);
+      iter++;
+      if (matches(parts, cursor)) {
+        next.push(new Date(cursor));
+      }
+    }
+    return { past: past, next: next };
+  }
+
+  function renderRuns() {
+    if (!validExpr(currentExpr)) {
+      document.getElementById("pastRuns").innerHTML = '<div class="no-data">表达式无效</div>';
+      document.getElementById("nextRuns").innerHTML = '<div class="no-data">表达式无效</div>';
       return;
     }
-    errorMsg.classList.remove("show");
-    input.classList.remove("error");
 
-    /* explain grid */
-    explainCard.style.display = "";
+    var runs = getRuns(currentExpr, 5, 5);
+    renderList("pastRuns", runs.past, "past");
+    renderList("nextRuns", runs.next, "next");
+  }
+
+  function renderList(elId, dates, type) {
+    var el = document.getElementById(elId);
+    if (!dates.length) { el.innerHTML = '<div class="no-data">无匹配</div>'; return; }
     var html = "";
-    for (var i = 0; i < 5; i++) {
-      html += '<div class="explain-item">'+
-        '<div class="field">'+FIELD_NAMES[i]+'</div>'+
-        '<div class="val">'+r.parts[i]+'</div>'+
-        '<div class="desc">'+explainField(r.parts[i], i)+'</div>'+
-      '</div>';
-    }
-    explainGrid.innerHTML = html;
-    humanRead.textContent = humanSentence(r.parts);
-
-    /* next runs */
-    nextCard.style.display = "";
-    var runs = getNextRuns(r.parts, 10);
-    var lis = "";
-    runs.forEach(function(d, idx){
-      var dateStr = d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+" "+
-                    pad(d.getHours())+":"+pad(d.getMinutes())+":00";
+    dates.forEach(function(d){
+      var str = d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+" "+
+                pad(d.getHours())+":"+pad(d.getMinutes())+":00";
       var ts = Math.floor(d.getTime()/1000);
-      lis += '<li>'+
-        '<span class="idx'+(idx===0?' upcoming':'')+'">'+(idx+1)+'</span>'+
-        dateStr+' <span style="color:var(--text-dim)">周'+WEEKS[d.getDay()]+'</span>'+
+      html += '<li>'+
+        '<span class="dot '+type+'"></span>'+
+        str+' <span style="color:var(--text-dim)">周'+WEEKS[d.getDay()]+'</span>'+
         '<span class="ts">'+ts+'</span>'+
-        '<button class="copy-btn" data-txt="'+dateStr+'">复制</button>'+
       '</li>';
     });
-    nextList.innerHTML = lis;
-
-    /* bind copy */
-    nextList.querySelectorAll(".copy-btn").forEach(function(b){
-      b.addEventListener("click", function(){ copy(b.getAttribute("data-txt")); });
-    });
+    el.innerHTML = html;
   }
-
-  function hideAll() {
-    errorMsg.classList.remove("show");
-    explainCard.style.display = "none";
-    nextCard.style.display = "none";
-    input.classList.remove("error");
-  }
-
-  /* ── Events ── */
-  document.getElementById("btnParse").addEventListener("click", render);
-  input.addEventListener("keydown", function(e){ if(e.key==="Enter") render(); });
-
-  document.getElementById("presets").addEventListener("click", function(e){
-    if (e.target.classList.contains("preset")) {
-      input.value = e.target.textContent;
-      render();
-    }
-  });
 
   /* ── Copy ── */
-  function copy(text) {
-    navigator.clipboard.writeText(text).then(function(){ showToast("已复制"); });
-  }
+  document.getElementById("copyExpr").addEventListener("click", function(){
+    navigator.clipboard.writeText(currentExpr.join(" ")).then(function(){ toast("已复制"); });
+  });
+
+  /* ── Reverse parse presets ── */
+  var REVERSE_PRESETS = [
+    { label: "每分钟", expr: "* * * * *" },
+    { label: "每5分钟", expr: "*/5 * * * *" },
+    { label: "每10分钟", expr: "*/10 * * * *" },
+    { label: "每半小时", expr: "*/30 * * * *" },
+    { label: "每小时整点", expr: "0 * * * *" },
+    { label: "每2小时", expr: "0 */2 * * *" },
+    { label: "每6小时", expr: "0 */6 * * *" },
+    { label: "每天9点", expr: "0 9 * * *" },
+    { label: "每天12点", expr: "0 12 * * *" },
+    { label: "工作日9点", expr: "0 9 * * 1-5" },
+    { label: "每周一8点", expr: "0 8 * * 1" },
+    { label: "每周末0点", expr: "0 0 * * 6,0" },
+    { label: "每月1号0点", expr: "0 0 1 * *" },
+    { label: "每月15号9点", expr: "0 9 15 * *" },
+    { label: "每月最后一天", expr: "0 0 L * *" },
+    { label: "每年1月1日0点", expr: "0 0 1 1 *" },
+  ];
+
+  var rGrid = document.getElementById("reverseGrid");
+  REVERSE_PRESETS.forEach(function(p){
+    var div = document.createElement("div");
+    div.className = "rev-item";
+    div.innerHTML = p.label+'<div class="rev-expr">'+p.expr+'</div>';
+    div.addEventListener("click", function(){
+      currentExpr = p.expr.split(" ");
+      updateAll();
+    });
+    rGrid.appendChild(div);
+  });
+
+  /* ── Init ── */
+  buildSelector();
+  renderRuns();
+
+  /* ── Toast ── */
   var tmr;
-  function showToast(msg) {
+  function toast(msg) {
+    var el = document.getElementById("toast");
     clearTimeout(tmr);
-    toastEl.textContent = msg;
-    toastEl.classList.add("show");
-    tmr = setTimeout(function(){ toastEl.classList.remove("show"); }, 1500);
+    el.textContent = msg; el.classList.add("show");
+    tmr = setTimeout(function(){ el.classList.remove("show"); }, 1500);
   }
+
+  /* also expose expr preview click to copy */
+  document.getElementById("exprPreview").addEventListener("click", function(){
+    navigator.clipboard.writeText(currentExpr.join(" ")).then(function(){ toast("已复制"); });
+  });
+  document.getElementById("exprPreview").style.cursor = "pointer";
 })();
 </script>
 </body>
