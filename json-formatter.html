@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JSON Formatter</title>
+<style>
+  :root {
+    --bg: #1e1e2e;
+    --panel: #252536;
+    --border: #3a3a5c;
+    --text: #cdd6f4;
+    --text-dim: #6c7086;
+    --key: #89b4fa;
+    --string: #a6e3a1;
+    --number: #fab387;
+    --boolean: #cba6f7;
+    --null: #cba6f7;
+    --bracket: #f9e2af;
+    --error: #f38ba8;
+    --success: #a6e3a1;
+    --accent: #89b4fa;
+    --hover: #313244;
+    --scrollbar: #45475a;
+    --scrollbar-thumb: #585b70;
+    --radius: 8px;
+    --radius-sm: 4px;
+    --font-mono: "SF Mono","Fira Code","Cascadia Code","JetBrains Mono",Consolas,monospace;
+    --font-sans: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box}
+
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: var(--font-sans); height: 100vh;
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+
+  /* Header */
+  .header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 20px; border-bottom: 1px solid var(--border);
+    background: var(--panel); flex-shrink: 0;
+  }
+  .logo { font-size: 18px; font-weight: 700; color: var(--accent); }
+  .sep { flex: 1; }
+  .size-info { font-size: 12px; color: var(--text-dim); font-family: var(--font-mono); }
+  .size-info.warn { color: var(--error); }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border: 1px solid var(--border);
+    border-radius: var(--radius-sm); background: var(--bg);
+    color: var(--text); font-size: 13px; cursor: pointer;
+    transition: all 0.15s; font-family: var(--font-sans); white-space: nowrap;
+  }
+  .btn:hover { background: var(--hover); border-color: var(--accent); }
+  .btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .btn:disabled { opacity: 0.4; pointer-events: none; }
+  .btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+  /* Main layout */
+  .main { display: flex; flex: 1; overflow: hidden; }
+  .panel { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .panel+.panel { border-left: 1px solid var(--border); }
+
+  .panel-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 16px; border-bottom: 1px solid var(--border);
+    background: var(--panel); flex-shrink: 0;
+    font-size: 12px; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;
+  }
+  .panel-header .label { flex: 1; }
+  .line-count { font-family: var(--font-mono); font-weight: 400; font-size: 11px; }
+
+  .panel-body { flex: 1; overflow: auto; position: relative; }
+
+  /* Editor (left) */
+  .editor-wrap { position: relative; height: 100%; display: flex; }
+  .line-numbers {
+    flex-shrink: 0; width: 48px; padding: 16px 0;
+    background: var(--panel); color: var(--text-dim);
+    font-family: var(--font-mono); font-size: 13px;
+    line-height: 1.65; text-align: right; padding-right: 12px;
+    user-select: none; overflow: hidden;
+    border-right: 1px solid var(--border);
+  }
+  textarea {
+    flex: 1; background: transparent; color: var(--text);
+    border: none; outline: none; resize: none;
+    font-family: var(--font-mono); font-size: 13px;
+    line-height: 1.65; padding: 16px;
+    tab-size: 2; white-space: pre; overflow-wrap: normal; overflow-x: auto;
+  }
+  textarea::placeholder { color: var(--text-dim); }
+
+  /* Scrollbars */
+  textarea::-webkit-scrollbar,.panel-body::-webkit-scrollbar,
+  .tree-view::-webkit-scrollbar,.plain-view::-webkit-scrollbar { width: 6px; height: 6px; }
+  textarea::-webkit-scrollbar-track,.panel-body::-webkit-scrollbar-track,
+  .tree-view::-webkit-scrollbar-track,.plain-view::-webkit-scrollbar-track { background: transparent; }
+  textarea::-webkit-scrollbar-thumb,.panel-body::-webkit-scrollbar-thumb,
+  .tree-view::-webkit-scrollbar-thumb,.plain-view::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+
+  /* Tree view (right, pretty mode) */
+  .tree-view,.plain-view {
+    padding: 16px; font-family: var(--font-mono);
+    font-size: 13px; line-height: 1.7;
+    white-space: nowrap; min-height: 100%;
+  }
+
+  .tree-line {
+    display: flex; align-items: baseline; cursor: default;
+    border-radius: 3px; padding: 1px 4px; margin: 0 -4px;
+  }
+  .tree-line:hover { background: var(--hover); }
+
+  .toggle {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 16px; height: 16px; cursor: pointer; flex-shrink: 0;
+    margin-right: 2px; color: var(--text-dim);
+    border-radius: 3px; user-select: none;
+    transition: transform 0.12s;
+  }
+  .toggle:hover { color: var(--text); background: var(--border); }
+  .toggle.collapsed { transform: rotate(-90deg); }
+
+  .tree-key    { color: var(--key); }
+  .tree-str    { color: var(--string); }
+  .tree-num    { color: var(--number); }
+  .tree-bool   { color: var(--boolean); }
+  .tree-null   { color: var(--null); }
+  .tree-bracket{ color: var(--bracket); }
+  .tree-colon  { color: var(--text-dim); }
+  .tree-comma  { color: var(--text-dim); }
+
+  .tree-children { margin-left: 20px; }
+  .tree-children.hidden { display: none; }
+
+  .tree-count { color: var(--text-dim); font-size: 11px; margin-left: 4px; font-style: italic; }
+
+  /* Plain view (right, compact mode) */
+  .plain-view {
+    white-space: pre-wrap; word-break: break-all;
+    line-height: 1.65; user-select: all;
+    color: var(--text);
+  }
+
+  /* Error banner */
+  .error-banner {
+    display: none; align-items: flex-start; gap: 8px;
+    padding: 10px 16px; background: rgba(243,139,168,0.12);
+    border-bottom: 1px solid var(--error); color: var(--error);
+    font-size: 13px; flex-shrink: 0;
+  }
+  .error-banner.show { display: flex; }
+  .error-banner svg { flex-shrink: 0; margin-top: 1px; }
+  .error-banner .msg { flex: 1; }
+  .error-banner .pos { white-space: nowrap; font-family: var(--font-mono); font-size: 12px; opacity: 0.8; }
+
+  /* Empty state */
+  .empty-state {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; height: 100%; color: var(--text-dim);
+    gap: 8px; text-align: center; padding: 40px;
+  }
+  .empty-state .icon { font-size: 40px; opacity: 0.3; }
+
+  /* Toast */
+  .toast {
+    position: fixed; top: 20px; right: 20px;
+    background: var(--success); color: var(--bg);
+    padding: 8px 16px; border-radius: var(--radius-sm);
+    font-size: 13px; font-weight: 600;
+    opacity: 0; transform: translateY(-10px);
+    transition: all 0.25s; pointer-events: none; z-index: 100;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+<div class="header">
+  <span class="logo">{ } JSON</span>
+  <span class="sep"></span>
+  <button class="btn" id="btnFormat" title="格式化 (Ctrl+Enter)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    格式化
+  </button>
+  <button class="btn active" id="btnMode">美化</button>
+  <button class="btn" id="btnCopy" disabled title="复制格式化结果">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+    复制
+  </button>
+  <button class="btn" id="btnExpandAll" disabled>展开</button>
+  <button class="btn" id="btnCollapseAll" disabled>折叠</button>
+  <span class="size-info" id="sizeInfo"></span>
+</div>
+
+<div class="main">
+  <!-- Left: Editor -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="label">原始数据</span>
+      <span class="line-count" id="leftLineCount">行 0</span>
+    </div>
+    <div class="panel-body">
+      <div class="editor-wrap">
+        <div class="line-numbers" id="lineNumbers"></div>
+        <textarea id="input" placeholder="在此粘贴 JSON 数据..." spellcheck="false"></textarea>
+      </div>
+    </div>
+    <div class="error-banner" id="errorBanner">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span class="msg" id="errorMsg"></span>
+      <span class="pos" id="errorPos"></span>
+    </div>
+  </div>
+
+  <!-- Right: Output -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="label">格式化结果</span>
+      <span class="line-count" id="rightLineCount">行 0</span>
+    </div>
+    <div class="panel-body" id="outputPanel">
+      <div class="empty-state" id="emptyState">
+        <div class="icon">{…}</div>
+        <div>在左侧输入 JSON，自动格式化</div>
+      </div>
+      <div class="tree-view" id="treeView" style="display:none"></div>
+      <pre class="plain-view" id="plainView" style="display:none"></pre>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  var input       = document.getElementById("input");
+  var treeView    = document.getElementById("treeView");
+  var plainView   = document.getElementById("plainView");
+  var emptyState  = document.getElementById("emptyState");
+  var lineNumbers = document.getElementById("lineNumbers");
+  var leftCount   = document.getElementById("leftLineCount");
+  var rightCount  = document.getElementById("rightLineCount");
+  var errBanner   = document.getElementById("errorBanner");
+  var errMsg      = document.getElementById("errorMsg");
+  var errPos      = document.getElementById("errorPos");
+  var sizeInfo    = document.getElementById("sizeInfo");
+  var toastEl     = document.getElementById("toast");
+
+  var btnFormat  = document.getElementById("btnFormat");
+  var btnMode    = document.getElementById("btnMode");
+  var btnCopy    = document.getElementById("btnCopy");
+  var btnExpand  = document.getElementById("btnExpandAll");
+  var btnCollapse= document.getElementById("btnCollapseAll");
+
+  var isPretty = true;   // pretty vs compact
+  var parsed   = null;
+
+  /* ── Line numbers ── */
+  function syncLines() {
+    var lines = input.value.split("\n").length;
+    var nums = [];
+    for (var i = 1; i <= Math.max(lines, 3); i++) nums.push(i);
+    lineNumbers.textContent = nums.join("\n");
+    leftCount.textContent = "\u884c " + lines;
+  }
+  input.addEventListener("scroll", function(){ lineNumbers.scrollTop = input.scrollTop; });
+
+  /* ── Size info ── */
+  function updateSize() {
+    var len = input.value.length;
+    if (!len) { sizeInfo.textContent = ""; return; }
+    if (len < 1024) { sizeInfo.textContent = len + " \u5b57\u7b26"; return; }
+    var kb = (len / 1024).toFixed(1);
+    sizeInfo.textContent = kb + " KB";
+    sizeInfo.className = len > 2*1024*1024 ? "size-info warn" : "size-info";
+  }
+
+  /* ── Debounce ── */
+  var debounce;
+  input.addEventListener("input", function(){
+    syncLines(); updateSize(); apply();
+  });
+  function apply() {
+    clearTimeout(debounce);
+    debounce = setTimeout(doFormat, 300);
+  }
+
+  /* ── Parse & render ── */
+  function doFormat() {
+    var raw = input.value.trim();
+    if (!raw) { resetAll(); return; }
+    try {
+      parsed = JSON.parse(raw);
+      hideErr();
+      render();
+    } catch(e) {
+      showErr(e, raw);
+    }
+  }
+
+  function render() {
+    emptyState.style.display = "none";
+    if (isPretty) {
+      plainView.style.display = "none";
+      treeView.style.display = "block";
+      treeView.innerHTML = "";
+      treeView.appendChild(buildNode("", parsed));
+      updateRight();
+      btnExpand.disabled = false;
+      btnCollapse.disabled = false;
+    } else {
+      treeView.style.display = "none";
+      plainView.style.display = "block";
+      plainView.textContent = JSON.stringify(parsed);
+      rightCount.textContent = "\u884c " + (isPretty ? JSON.stringify(parsed,null,2).split("\n").length : 1);
+      btnExpand.disabled = true;
+      btnCollapse.disabled = true;
+    }
+    btnCopy.disabled = false;
+  }
+
+  function resetAll() {
+    treeView.style.display = "none"; treeView.innerHTML = "";
+    plainView.style.display = "none"; plainView.textContent = "";
+    emptyState.style.display = "";
+    rightCount.textContent = "\u884c 0";
+    hideErr();
+    parsed = null;
+    btnCopy.disabled = true;
+    btnExpand.disabled = true;
+    btnCollapse.disabled = true;
+  }
+
+  /* ── Tree builder ── */
+  function h(t,c){ var s=document.createElement("span"); s.className=c; s.textContent=t; return s; }
+  function esc(v){ return v.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+  function buildNode(key, val) {
+    var wrapper = document.createElement("div");
+
+    if (val === null)
+      wrapper.appendChild(leaf(key, h("null","tree-null")));
+    else if (typeof val === "boolean")
+      wrapper.appendChild(leaf(key, h(String(val),"tree-bool")));
+    else if (typeof val === "number")
+      wrapper.appendChild(leaf(key, h(String(val),"tree-num")));
+    else if (typeof val === "string")
+      wrapper.appendChild(leaf(key, h('"'+esc(val)+'"',"tree-str")));
+    else if (Array.isArray(val))
+      wrapper.appendChild(container(key, val, "[", "]"));
+    else
+      wrapper.appendChild(container(key, val, "{", "}"));
+    return wrapper;
+  }
+
+  function leaf(key, valueEl) {
+    var line = document.createElement("div");
+    line.className = "tree-line";
+    if (key !== "") {
+      line.appendChild(h('"'+esc(key)+'"', "tree-key"));
+      line.appendChild(h(": ", "tree-colon"));
+    }
+    line.appendChild(valueEl);
+    return line;
+  }
+
+  function container(key, obj, openB, closeB) {
+    var outer = document.createElement("div");
+    outer.className = "tree-node";
+
+    var keys = Array.isArray(obj) ? null : Object.keys(obj);
+    var len  = Array.isArray(obj) ? obj.length : keys.length;
+    var empty = len === 0;
+
+    /* header line */
+    var line = document.createElement("div");
+    line.className = "tree-line";
+
+    var toggle = document.createElement("span");
+    toggle.className = "toggle";
+    toggle.innerHTML = '<svg width="10" height="10" viewBox="0 0 10 10"><polygon points="2,3 8,3 5,7" fill="currentColor"/></svg>';
+
+    var body = document.createElement("span");
+    if (key !== "") {
+      body.appendChild(h('"'+esc(key)+'"', "tree-key"));
+      body.appendChild(h(": ", "tree-colon"));
+    }
+    body.appendChild(h(openB, "tree-bracket"));
+    if (!empty) {
+      var cnt = document.createElement("span");
+      cnt.className = "tree-count";
+      cnt.textContent = len + " \u9879";
+      body.appendChild(cnt);
+    }
+    body.appendChild(h(closeB, "tree-bracket"));
+
+    line.appendChild(toggle);
+    line.appendChild(body);
+
+    /* children */
+    var kidsWrap = document.createElement("div");
+    kidsWrap.className = "tree-children";
+
+    if (empty) {
+      toggle.style.visibility = "hidden";
+    } else {
+      for (var i = 0; i < len; i++) {
+        var k  = keys ? keys[i] : "";
+        var v  = keys ? obj[k] : obj[i];
+        var child = buildNode(k, v);
+        /* comma after value, except last */
+        var fl = child.querySelector(".tree-line");
+        if (fl) {
+          var comma = document.createElement("span");
+          comma.className = "tree-comma";
+          comma.textContent = i < len - 1 ? "," : "";
+          fl.appendChild(comma);
+        }
+        kidsWrap.appendChild(child);
+      }
+    }
+
+    toggle.addEventListener("click", function(e){
+      e.stopPropagation();
+      kidsWrap.classList.toggle("hidden");
+      toggle.classList.toggle("collapsed");
+      updateRight();
+    });
+
+    outer.appendChild(line);
+    outer.appendChild(kidsWrap);
+    return outer;
+  }
+
+  /* ── Visible line count ── */
+  function updateRight() {
+    if (!isPretty) return;
+    var lines = treeView.querySelectorAll(".tree-line:not(.tree-children.hidden .tree-line)");
+    rightCount.textContent = "\u884c " + lines.length;
+  }
+
+  /* ── Error ── */
+  function showErr(e, raw) {
+    errBanner.classList.add("show");
+    errMsg.textContent = e.message;
+    var m = e.message.match(/position\s+(\d+)/i);
+    if (m) {
+      var pos = parseInt(m[1]);
+      var pre = raw.substring(0, pos);
+      var line = pre.split("\n").length;
+      var col  = pos - pre.lastIndexOf("\n");
+      errPos.textContent = "\u7b2c " + line + " \u884c, \u7b2c " + col + " \u5217";
+    } else { errPos.textContent = ""; }
+    /* reset right side */
+    treeView.style.display = "none"; treeView.innerHTML = "";
+    plainView.style.display = "none"; plainView.textContent = "";
+    emptyState.style.display = "";
+    rightCount.textContent = "\u884c 0";
+    parsed = null;
+    btnCopy.disabled = true;
+    btnExpand.disabled = true;
+    btnCollapse.disabled = true;
+  }
+  function hideErr() { errBanner.classList.remove("show"); }
+
+  /* ── Buttons ── */
+  btnFormat.addEventListener("click", doFormat);
+
+  btnMode.addEventListener("click", function(){
+    isPretty = !isPretty;
+    btnMode.textContent = isPretty ? "\u7f8e\u5316" : "\u538b\u7f29";
+    btnMode.classList.toggle("active", isPretty);
+    if (parsed) render();
+  });
+
+  btnCopy.addEventListener("click", function(){
+    if (!parsed) return;
+    navigator.clipboard.writeText(
+      isPretty ? JSON.stringify(parsed, null, 2) : JSON.stringify(parsed)
+    ).then(function(){ showToast("\u5df2\u590d\u5236"); });
+  });
+
+  btnExpand.addEventListener("click", function(){
+    treeView.querySelectorAll(".tree-children.hidden").forEach(function(c){ c.classList.remove("hidden"); });
+    treeView.querySelectorAll(".toggle.collapsed").forEach(function(t){ t.classList.remove("collapsed"); });
+    updateRight();
+  });
+
+  btnCollapse.addEventListener("click", function(){
+    treeView.querySelectorAll(".tree-children").forEach(function(c){ c.classList.add("hidden"); });
+    treeView.querySelectorAll(".toggle").forEach(function(t){ t.classList.add("collapsed"); });
+    updateRight();
+  });
+
+  /* ── Keyboard ── */
+  input.addEventListener("keydown", function(e){
+    if (e.key === "Tab") {
+      e.preventDefault();
+      var s = input.selectionStart, en = input.selectionEnd, v = input.value;
+      input.value = v.substring(0,s) + "  " + v.substring(en);
+      input.selectionStart = input.selectionEnd = s + 2;
+      syncLines(); apply();
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      e.preventDefault(); doFormat();
+    }
+  });
+
+  /* ── Toast ── */
+  var toastTmr;
+  function showToast(msg) {
+    clearTimeout(toastTmr);
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    toastTmr = setTimeout(function(){ toastEl.classList.remove("show"); }, 2000);
+  }
+
+  /* ── Init ── */
+  syncLines();
+})();
+</script>
+</body>
+</html>
