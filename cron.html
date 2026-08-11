@@ -27,11 +27,14 @@
     font-family: var(--font-sans); min-height: 100vh;
     display: flex; flex-direction: column; align-items: center;
   }
-  .container { width: 100%; max-width: 780px; padding: 32px 20px 60px; }
+  .container { width: 100%; max-width: 1200px; padding: 24px 32px 40px; }
 
-  .header { text-align: center; margin-bottom: 24px; }
-  .header h1 { font-size: 22px; color: var(--accent); }
-  .header .sub { color: var(--text-dim); font-size: 12px; margin-top: 4px; }
+  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+  .header .left h1 { font-size: 22px; color: var(--accent); }
+  .header .left .sub { color: var(--text-dim); font-size: 12px; margin-top: 2px; }
+  .header .right { display: flex; align-items: center; gap: 14px; }
+  .header .right a { color: var(--text-dim); font-size: 13px; text-decoration: none; }
+  .header .right a:hover { color: var(--accent); }
 
   /* card */
   .card {
@@ -147,8 +150,16 @@
 <body>
 <div class="container">
   <div class="header">
-    <h1>Cron</h1>
-    <div class="sub">表达式可视化构建 &amp; 解析</div>
+    <div class="left">
+      <h1>Cron</h1>
+      <div class="sub">表达式可视化构建 &amp; 解析</div>
+    </div>
+    <div class="right">
+      <a href="index.html">首页</a>
+      <a href="json-formatter.html">JSON</a>
+      <a href="timestamp.html">Timestamp</a>
+      <button onclick="toggleTheme()" style="background:none;border:1px solid var(--border);border-radius:4px;color:var(--text-dim);cursor:pointer;font-size:14px;padding:2px 6px;line-height:1" title="切换主题" id="themeBtn">🌙</button>
+    </div>
   </div>
 
   <!-- Visual Selector -->
@@ -181,13 +192,6 @@
         <ul class="run-list" id="nextRuns"></ul>
       </div>
     </div>
-  </div>
-
-  <div class="nav">
-    <a href="index.html">← 首页</a>
-    <a href="json-formatter.html">JSON</a>
-    <a href="timestamp.html">Timestamp</a>
-    <button onclick="toggleTheme()" style="background:none;border:1px solid var(--border);border-radius:4px;color:var(--text-dim);cursor:pointer;font-size:14px;padding:2px 6px;line-height:1" title="切换主题" id="themeBtn">🌙</button>
   </div>
 </div>
 <div class="toast" id="toast"></div>
