@@ -222,6 +222,8 @@
   </button>
   <button class="btn" id="btnExpandAll" disabled>展开</button>
   <button class="btn" id="btnCollapseAll" disabled>折叠</button>
+  <span class="sep"></span>
+  <button class="btn" id="btnJava" title="将 Java 对象格式转为标准 JSON">Java→JSON</button>
   <span class="size-info" id="sizeInfo"></span>
 </div>
 
@@ -321,8 +323,68 @@
     debounce = setTimeout(doFormat, 300);
   }
 
+  /* ── Java object → JSON converter ── */
+  function convertJavaObject(str) {
+    var i = 0, len = str.length;
+    function peek() { return i < len ? str[i] : ''; }
+    function next() { return str[i++]; }
+    function skipWs() { while (peek() === ' ' || peek() === '\n' || peek() === '\t' || peek() === '\r') next(); }
+
+    function parseValue() {
+      skipWs(); var c = peek();
+      if (c === '{') return parseObject();
+      if (c === '[') return parseArray();
+      if (c === '"') return JSON.stringify(parseQuoted('"'));
+      if (c === "'") return JSON.stringify(parseQuoted("'"));
+      /* unquoted value */
+      var val = '', depth = 0;
+      while (i < len) {
+        c = peek();
+        if (c === '{' || c === '[') depth++;
+        if (c === '}' || c === ']') { if (depth === 0) break; depth--; }
+        if (depth === 0 && c === ',') break;
+        val += next();
+      }
+      val = val.trim();
+      if (val === 'null') return 'null';
+      if (val === 'true' || val === 'false') return val;
+      if (val === '') return '""';
+      if (/^-?\d+(\.\d+)?([eE][+-]?\d+)?$/.test(val)) return val;
+      return JSON.stringify(val);
+    }
+    function parseQuoted(q) {
+      next(); var val = '';
+      while (i < len) { var c = peek(); if (c === q) break; if (c === '\\') { next(); val += next(); continue; } val += next(); }
+      next(); return val;
+    }
+    function parseObject() {
+      next(); skipWs(); var pairs = [];
+      while (i < len && peek() !== '}') {
+        skipWs(); var key = '';
+        if (peek() === '"' || peek() === "'") key = parseQuoted(peek());
+        else { while (i < len && peek() !== '=' && peek() !== ' ' && peek() !== '\n' && peek() !== '\t' && peek() !== '\r' && peek() !== '}') key += next(); key = key.trim(); }
+        skipWs(); if (peek() === '=') next();
+        pairs.push(JSON.stringify(key) + ': ' + parseValue());
+        skipWs(); if (peek() === ',') next();
+      }
+      if (peek() === '}') next();
+      return '{' + pairs.join(', ') + '}';
+    }
+    function parseArray() {
+      next(); skipWs(); var items = [];
+      while (i < len && peek() !== ']') { items.push(parseValue()); skipWs(); if (peek() === ',') next(); skipWs(); }
+      next(); return '[' + items.join(', ') + ']';
+    }
+    return parseValue();
+  }
+
+  function looksLikeJava(str) {
+    /* quick check: contains = between word chars, no ":" for JSON keys */
+    return /\b\w+\s*=\s*/.test(str) && !/^\s*[{[]\s*"/.test(str.trim());
+  }
+
   /* ── Parse & render ── */
-  function doFormat() {
+  function doFormat(forceConvert) {
     var raw = input.value.trim();
     if (!raw) { resetAll(); return; }
     try {
@@ -330,9 +392,34 @@
       hideErr();
       render();
     } catch(e) {
+      /* auto-convert Java objects only when explicitly requested */
+      if (forceConvert && looksLikeJava(raw)) {
+        try {
+          var converted = convertJavaObject(raw);
+          parsed = JSON.parse(converted);
+          input.value = converted;
+          syncLines(); updateSize();
+          hideErr();
+          render();
+          return;
+        } catch(e2) {}
+      }
       showErr(e, raw);
     }
   }
+
+  var btnJava = document.getElementById("btnJava");
+  btnJava.addEventListener("click", function() { doFormat(true); });
+
+  /* Format + Java buttons: force conversion mode */
+  btnFormat.addEventListener("click", function(){ doFormat(true); });
+
+  var debounce;
+  input.addEventListener("input", function(){
+    syncLines(); updateSize();
+    clearTimeout(debounce);
+    debounce = setTimeout(function(){ doFormat(false); }, 300);
+  }); 
 
   function render() {
     emptyState.style.display = "none";
@@ -500,7 +587,6 @@
   function hideErr() { errBanner.classList.remove("show"); }
 
   /* ── Buttons ── */
-  btnFormat.addEventListener("click", doFormat);
 
   btnMode.addEventListener("click", function(){
     isPretty = !isPretty;
