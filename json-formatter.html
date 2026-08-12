@@ -41,16 +41,33 @@
   body {
     background: var(--bg); color: var(--text);
     font-family: var(--font-sans); height: 100vh;
-    display: flex; flex-direction: column; overflow: hidden;
+    display: flex; flex-direction: row; overflow: hidden;
   }
 
-  /* Header */
-  .header {
+  /* Sidebar */
+  .sidebar { width: 200px; flex-shrink: 0; background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px 0; }
+  .sidebar-brand { padding: 0 20px 20px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
+  .sidebar-brand .name { font-size: 18px; font-weight: 700; color: var(--accent); }
+  .sidebar-brand .sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .sidebar-nav { flex: 1; padding: 8px 0; }
+  .sidebar-nav a { display: flex; align-items: center; gap: 10px; padding: 10px 20px; color: var(--text-dim); text-decoration: none; font-size: 14px; transition: all 0.12s; border-left: 3px solid transparent; }
+  .sidebar-nav a:hover { color: var(--text); background: rgba(137,180,250,0.06); }
+  .sidebar-nav a.active { color: var(--accent); border-left-color: var(--accent); background: rgba(137,180,250,0.08); }
+  .sidebar-nav a .icon { font-size: 16px; width: 24px; text-align: center; flex-shrink: 0; }
+  .sidebar-bottom { padding: 16px 20px; border-top: 1px solid var(--border); }
+  .sidebar-bottom button { width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); cursor: pointer; font-size: 13px; font-family: var(--font-sans); transition: all 0.12s; }
+  .sidebar-bottom button:hover { border-color: var(--accent); }
+
+  /* Main wrapper */
+  .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+  /* Toolbar */
+  .toolbar {
     display: flex; align-items: center; gap: 12px;
-    padding: 12px 20px; border-bottom: 1px solid var(--border);
+    padding: 10px 20px; border-bottom: 1px solid var(--border);
     background: var(--panel); flex-shrink: 0;
   }
-  .logo { font-size: 18px; font-weight: 700; color: var(--accent); }
+  .logo { font-size: 16px; font-weight: 700; color: var(--accent); }
   .sep { flex: 1; }
   .size-info { font-size: 12px; color: var(--text-dim); font-family: var(--font-mono); }
   .size-info.warn { color: var(--error); }
@@ -189,9 +206,29 @@
 </style>
 </head>
 <body>
-<div class="header">
-  <span class="logo">{ } JSON</span>
-  <span class="sep"></span>
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="name">{ } JSON</div>
+    <div class="sub">格式化 &amp; 树形预览</div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="index.html"><span class="icon">🏠</span> 首页</a>
+    <a href="json-formatter.html" class="active"><span class="icon">{ }</span> JSON</a>
+    <a href="timestamp.html"><span class="icon">⏱</span> Timestamp</a>
+    <a href="cron.html"><span class="icon">🕐</span> Cron</a>
+    <a href="password.html"><span class="icon">🔑</span> Password</a>
+    <a href="regex.html"><span class="icon">⚡</span> Regex</a>
+    <a href="diff.html"><span class="icon">≠</span> Diff</a>
+    <a href="color.html"><span class="icon">🎨</span> Color</a>
+  </nav>
+  <div class="sidebar-bottom">
+    <button onclick="toggleTheme()" id="themeBtn">🌙 深色模式</button>
+  </div>
+</aside>
+
+<div class="main-wrapper">
+<div class="toolbar">
+  <span class="logo">JSON Formatter</span>
   <button class="btn" id="btnFormat" title="格式化 (Ctrl+Enter)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
     格式化
@@ -204,10 +241,6 @@
   <button class="btn" id="btnExpandAll" disabled>展开</button>
   <button class="btn" id="btnCollapseAll" disabled>折叠</button>
   <span class="size-info" id="sizeInfo"></span>
-  <a href="index.html" style="color:var(--text-dim);font-size:13px;text-decoration:none;margin-left:6px">首页</a>
-  <a href="timestamp.html" style="color:var(--text-dim);font-size:13px;text-decoration:none;margin-left:6px">Timestamp</a>
-  <a href="cron.html" style="color:var(--text-dim);font-size:13px;text-decoration:none;margin-left:6px">Cron</a>
-  <button onclick="toggleTheme()" style="background:none;border:1px solid var(--border);border-radius:4px;color:var(--text-dim);cursor:pointer;font-size:14px;padding:2px 6px;margin-left:8px;line-height:1" title="切换主题" id="themeBtn">🌙</button>
 </div>
 
 <div class="main">
@@ -245,6 +278,7 @@
       <pre class="plain-view" id="plainView" style="display:none"></pre>
     </div>
   </div>
+</div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -536,14 +570,14 @@
   /* ── Theme ── */
   var saved = localStorage.getItem("theme") || "dark";
   document.documentElement.setAttribute("data-theme", saved);
-  document.getElementById("themeBtn").textContent = saved === "light" ? "☀️" : "🌙";
+  document.getElementById("themeBtn").textContent = saved === "light" ? "☀️ 浅色模式" : "🌙 深色模式";
 
   window.toggleTheme = function() {
     var cur = document.documentElement.getAttribute("data-theme");
     var next = cur === "light" ? "dark" : "light";
     document.documentElement.setAttribute("data-theme", next);
     localStorage.setItem("theme", next);
-    document.getElementById("themeBtn").textContent = next === "light" ? "☀️" : "🌙";
+    document.getElementById("themeBtn").textContent = next === "light" ? "☀️ 浅色模式" : "🌙 深色模式";
   };
 
   /* ── Init ── */
