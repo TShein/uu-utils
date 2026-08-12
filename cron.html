@@ -55,8 +55,10 @@
   .sidebar-bottom button:hover { border-color: var(--accent); }
 
   /* Content */
-  .main-content { flex: 1; overflow-y: auto; min-width: 0; }
-  .container { padding: 28px 36px 40px; }
+  .main-content { flex: 1; overflow-y: auto; min-width: 0; display: flex; }
+  .container { flex: 0 0 auto; max-width: 700px; width: 100%; padding: 40px 36px; }
+  .deco { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px; opacity: 0.07; min-width: 0; }
+  .deco svg { width: 280px; height: 280px; color: var(--text); }
 
   /* card */
   .card {
@@ -170,6 +172,27 @@
 </div>
 </div>
 
+
+<div class="deco">
+<svg viewBox="0 0 200 200" fill="none" stroke="currentColor" stroke-width="4">
+  <rect x="25" y="40" width="150" height="145" rx="10"/>
+  <line x1="25" y1="85" x2="175" y2="85"/>
+  <rect x="55" y="18" width="30" height="30" rx="5"/>
+  <rect x="115" y="18" width="30" height="30" rx="5"/>
+  <line x1="55" y1="33" x2="55" y2="48" stroke-width="2"/>
+  <line x1="85" y1="18" x2="85" y2="48" stroke-width="2"/>
+  <line x1="115" y1="33" x2="115" y2="48" stroke-width="2"/>
+  <line x1="145" y1="18" x2="145" y2="48" stroke-width="2"/>
+  <circle cx="65" cy="130" r="12" fill="currentColor" opacity="0.3"/>
+  <circle cx="100" cy="115" r="12" fill="currentColor" opacity="0.3"/>
+  <circle cx="135" cy="140" r="12" fill="currentColor" opacity="0.3"/>
+  <circle cx="100" cy="150" r="12" fill="currentColor" opacity="0.5"/>
+  <circle cx="60" cy="160" r="12" fill="currentColor" opacity="0.3"/>
+  <circle cx="140" cy="170" r="12" fill="currentColor" opacity="0.3"/>
+  <line x1="75" y1="130" x2="90" y2="120" stroke-width="2" opacity="0.4"/>
+  <line x1="112" y1="125" x2="125" y2="140" stroke-width="2" opacity="0.4"/>
+</svg>
+</div>
 <div class="toast" id="toast"></div>
 
 <script src="nav.js"></script>

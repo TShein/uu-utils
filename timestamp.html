@@ -56,8 +56,10 @@
   .sidebar-bottom button:hover { border-color: var(--accent); }
 
   /* Content */
-  .main-content { flex: 1; overflow-y: auto; min-width: 0; }
-  .container { padding: 28px 36px 40px; }
+  .main-content { flex: 1; overflow-y: auto; min-width: 0; display: flex; }
+  .container { flex: 0 0 auto; max-width: 700px; width: 100%; padding: 40px 36px; }
+  .deco { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px; opacity: 0.07; min-width: 0; }
+  .deco svg { width: 280px; height: 280px; color: var(--text); }
 
   /* Live clock */
   .live-clock {
@@ -212,6 +214,19 @@
 </div>
 </div>
 
+
+<div class="deco">
+<svg viewBox="0 0 200 200" fill="none" stroke="currentColor" stroke-width="4">
+  <circle cx="100" cy="100" r="90"/>
+  <circle cx="100" cy="100" r="6" fill="currentColor"/>
+  <line x1="100" y1="100" x2="100" y2="30" stroke-width="5" stroke-linecap="round"/>
+  <line x1="100" y1="100" x2="145" y2="100" stroke-width="3" stroke-linecap="round"/>
+  <line x1="100" y1="20" x2="100" y2="30" stroke-width="6"/>
+  <line x1="180" y1="100" x2="170" y2="100" stroke-width="6"/>
+  <line x1="100" y1="180" x2="100" y2="170" stroke-width="6"/>
+  <line x1="20" y1="100" x2="30" y2="100" stroke-width="6"/>
+</svg>
+</div>
 <div class="toast" id="toast"></div>
 
 <script src="nav.js"></script>
