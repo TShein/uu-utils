@@ -206,25 +206,7 @@
 </style>
 </head>
 <body>
-<aside class="sidebar">
-  <div class="sidebar-brand">
-    <div class="name">{ } JSON</div>
-    <div class="sub">格式化 &amp; 树形预览</div>
-  </div>
-  <nav class="sidebar-nav">
-    <a href="index.html"><span class="icon">🏠</span> 首页</a>
-    <a href="json-formatter.html" class="active"><span class="icon">{ }</span> JSON</a>
-    <a href="timestamp.html"><span class="icon">⏱</span> Timestamp</a>
-    <a href="cron.html"><span class="icon">🕐</span> Cron</a>
-    <a href="password.html"><span class="icon">🔑</span> Password</a>
-    <a href="regex.html"><span class="icon">⚡</span> Regex</a>
-    <a href="diff.html"><span class="icon">≠</span> Diff</a>
-    <a href="color.html"><span class="icon">🎨</span> Color</a>
-  </nav>
-  <div class="sidebar-bottom">
-    <button onclick="toggleTheme()" id="themeBtn">🌙 深色模式</button>
-  </div>
-</aside>
+<aside class="sidebar" id="sidebar"></aside>
 
 <div class="main-wrapper">
 <div class="toolbar">
@@ -283,8 +265,10 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="nav.js"></script>
 <script>
 (function(){
+  initSidebar("json");
   var input       = document.getElementById("input");
   var treeView    = document.getElementById("treeView");
   var plainView   = document.getElementById("plainView");
@@ -567,18 +551,7 @@
     toastTmr = setTimeout(function(){ toastEl.classList.remove("show"); }, 2000);
   }
 
-  /* ── Theme ── */
-  var saved = localStorage.getItem("theme") || "dark";
-  document.documentElement.setAttribute("data-theme", saved);
-  document.getElementById("themeBtn").textContent = saved === "light" ? "☀️ 浅色模式" : "🌙 深色模式";
-
-  window.toggleTheme = function() {
-    var cur = document.documentElement.getAttribute("data-theme");
-    var next = cur === "light" ? "dark" : "light";
-    document.documentElement.setAttribute("data-theme", next);
-    localStorage.setItem("theme", next);
-    document.getElementById("themeBtn").textContent = next === "light" ? "☀️ 浅色模式" : "🌙 深色模式";
-  };
+  
 
   /* ── Init ── */
   syncLines();

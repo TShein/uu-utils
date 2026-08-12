@@ -62,20 +62,7 @@ input.error{border-color:var(--rose)}
 </style>
 </head>
 <body>
-<aside class="sidebar">
-  <div class="sidebar-brand"><div class="name">Color</div><div class="sub">颜色空间转换</div></div>
-  <nav class="sidebar-nav">
-    <a href="index.html"><span class="icon">🏠</span> 首页</a>
-    <a href="json-formatter.html"><span class="icon">{ }</span> JSON</a>
-    <a href="timestamp.html"><span class="icon">⏱</span> Timestamp</a>
-    <a href="cron.html"><span class="icon">🕐</span> Cron</a>
-    <a href="password.html"><span class="icon">🔑</span> Password</a>
-    <a href="regex.html"><span class="icon">⚡</span> Regex</a>
-    <a href="diff.html"><span class="icon">≠</span> Diff</a>
-    <a href="color.html" class="active"><span class="icon">🎨</span> Color</a>
-  </nav>
-  <div class="sidebar-bottom"><button onclick="toggleTheme()" id="themeBtn">🌙 深色模式</button></div>
-</aside>
+<aside class="sidebar" id="sidebar"></aside>
 <div class="main-content"><div class="container">
 
   <div class="card">
@@ -97,8 +84,10 @@ input.error{border-color:var(--rose)}
 </div></div>
 <div class="toast" id="toast"></div>
 
+<script src="nav.js"></script>
 <script>
 (function(){
+  initSidebar("color");
   var swatch=document.getElementById("swatch"),picker=document.getElementById("nativePicker");
   var colorInput=document.getElementById("colorInput"),fmtGrid=document.getElementById("fmtGrid");
   var palette=document.getElementById("palette"),toastEl=document.getElementById("toast");
@@ -217,19 +206,11 @@ input.error{border-color:var(--rose)}
   colorInput.addEventListener("keydown",function(e){if(e.key==="Enter") update(this.value.trim())});
   picker.addEventListener("input",function(){setColor(this.value)});
 
-  function copy(t){navigator.clipboard.writeText(t).then(function(){toast("已复制")})}
+  function copy(t){navigator.clipboard.writeText(t).then(function(){showToast("已复制")})}
 
   /* Theme */
-  var saved=localStorage.getItem("theme")||"dark";
-  document.documentElement.setAttribute("data-theme",saved);
-  document.getElementById("themeBtn").textContent=saved==="light"?"☀️ 浅色模式":"🌙 深色模式";
-  window.toggleTheme=function(){
-    var n=document.documentElement.getAttribute("data-theme")==="light"?"dark":"light";
-    document.documentElement.setAttribute("data-theme",n);
-    localStorage.setItem("theme",n);
-    document.getElementById("themeBtn").textContent=n==="light"?"☀️ 浅色模式":"🌙 深色模式";
-  };
-  var tmr;function toast(m){clearTimeout(tmr);toastEl.textContent=m;toastEl.classList.add("show");tmr=setTimeout(function(){toastEl.classList.remove("show")},1500)}
+  
+  var tmr;function showToast(m){clearTimeout(tmr);toastEl.textContent=m;toastEl.classList.add("show");tmr=setTimeout(function(){toastEl.classList.remove("show")},1500)}
   setColor("#7c8bff");
 })();
 </script>

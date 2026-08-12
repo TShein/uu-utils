@@ -144,21 +144,7 @@
 </style>
 </head>
 <body>
-<aside class="sidebar">
-  <div class="sidebar-brand">
-    <div class="name">Timestamp</div>
-    <div class="sub">Unix 时间戳转换</div>
-  </div>
-  <nav class="sidebar-nav">
-    <a href="index.html"><span class="icon">🏠</span> 首页</a>
-    <a href="json-formatter.html"><span class="icon">{ }</span> JSON</a>
-    <a href="timestamp.html" class="active"><span class="icon">⏱</span> Timestamp</a>
-    <a href="cron.html"><span class="icon">🕐</span> Cron</a>
-  </nav>
-  <div class="sidebar-bottom">
-    <button onclick="toggleTheme()" id="themeBtn">🌙 深色模式</button>
-  </div>
-</aside>
+<aside class="sidebar" id="sidebar"></aside>
 
 <div class="main-content">
 <div class="container">
@@ -228,8 +214,10 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="nav.js"></script>
 <script>
 (function(){
+  initSidebar("timestamp");
   var tsSecEl=document.getElementById("ts-sec"), tsMsEl=document.getElementById("ts-ms"), dtEl=document.getElementById("datetime"), toastEl=document.getElementById("toast");
   var tsInput=document.getElementById("tsInput"), tsResult=document.getElementById("tsResult"), tsHint=document.getElementById("tsHint"), copyTs=document.getElementById("copyTsResult");
   var segYear=document.getElementById("segYear"),segMonth=document.getElementById("segMonth"),segDay=document.getElementById("segDay");
@@ -290,19 +278,11 @@
   dtReadable.style.cursor="pointer";
 
   /* Theme */
-  var saved=localStorage.getItem("theme")||"dark";
-  document.documentElement.setAttribute("data-theme",saved);
-  document.getElementById("themeBtn").textContent=saved==="light"?"☀️ 浅色模式":"🌙 深色模式";
-  window.toggleTheme=function(){
-    var n=document.documentElement.getAttribute("data-theme")==="light"?"dark":"light";
-    document.documentElement.setAttribute("data-theme",n);
-    localStorage.setItem("theme",n);
-    document.getElementById("themeBtn").textContent=n==="light"?"☀️ 浅色模式":"🌙 深色模式";
-  };
+  
 
   var tmr;
-  function toast(msg){ clearTimeout(tmr); toastEl.textContent=msg; toastEl.classList.add("show"); tmr=setTimeout(function(){toastEl.classList.remove("show")},1500); }
-  function copy(text){ navigator.clipboard.writeText(text).then(function(){ toast("已复制"); }); }
+  function showToast(msg){ clearTimeout(tmr); toastEl.textContent=msg; toastEl.classList.add("show"); tmr=setTimeout(function(){toastEl.classList.remove("show")},1500); }
+  function copy(text){ navigator.clipboard.writeText(text).then(function(){ showToast("已复制"); }); }
 
   fillNow();
 })();
